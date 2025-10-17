@@ -57,8 +57,7 @@
       "dist/**/*",
       "electron/**/*",
       "src/services/**/*",
-      "!**/*.map",
-      "!**/node_modules/**"
+      "!**/*.map"
     ],
     "win": {
       "target": [
@@ -121,6 +120,10 @@
       "owner": "99Problemsx",
       "repo": "mirrorbytes-launcher",
       "releaseType": "release"
-    }
+    },
+    "asarUnpack": [
+      "node_modules/discord-rpc/**/*",
+      "node_modules/adm-zip/**/*"
+    ]
   }
 }

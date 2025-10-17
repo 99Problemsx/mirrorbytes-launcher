@@ -3,10 +3,17 @@
  * Zeigt deine Mirrorbytes-Aktivität in Discord mit separaten Applications für jedes Spiel
  */
 
-const DiscordRPC = require('discord-rpc');
+// Try to load discord-rpc, but don't fail if it's not available
+let DiscordRPC = null;
+try {
+  DiscordRPC = require('discord-rpc');
+} catch (error) {
+  console.warn('⚠️ discord-rpc not available - Discord Rich Presence disabled');
+}
 
 class DiscordService {
   constructor() {
+    this.enabled = !!DiscordRPC; // Nur aktivieren wenn Modul verfügbar ist
     this.clients = new Map(); // Separate clients für jedes Spiel
     this.currentClient = null;
     this.currentGameId = null;
@@ -14,17 +21,17 @@ class DiscordService {
     // Discord Application IDs - eine für jedes Spiel
     this.gameClients = {
       illusion: {
-        id: '1428590219430461602', // Illusion Discord App
-        name: 'Illusion',
+        id: process.env.DISCORD_CLIENT_ID_ILLUSION || '1426433345545572455', // Pokémon Illusion Discord App
+        name: 'Pokémon Illusion',
         enabled: true
       },
       zorua: {
-        id: process.env.DISCORD_CLIENT_ID_ZORUA || '1428590219430461602', // TODO: Zweite Discord App für Zorua
+        id: process.env.DISCORD_CLIENT_ID_ZORUA || '1428590219430461602', // Zorua - The Divine Deception Discord App
         name: 'Zorua - The Divine Deception',
-        enabled: !!process.env.DISCORD_CLIENT_ID_ZORUA
+        enabled: true // Jetzt mit separater Discord App ID
       },
       launcher: {
-        id: '1428590219430461602', // Fallback für Launcher
+        id: process.env.DISCORD_CLIENT_ID_ILLUSION || '1426433345545572455', // Fallback auf Illusion App
         name: 'Mirrorbytes Studio',
         enabled: true
       }
@@ -39,6 +46,11 @@ class DiscordService {
    * Initialisiere Discord RPC für ein bestimmtes Spiel
    */
   async initialize(gameId = 'launcher') {
+    if (!this.enabled) {
+      console.log('⚠️  Discord Rich Presence disabled (module not available)');
+      return false;
+    }
+    
     try {
       const gameConfig = this.gameClients[gameId];
       

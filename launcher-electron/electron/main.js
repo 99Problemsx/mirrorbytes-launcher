@@ -107,7 +107,7 @@ function createWindow() {
       nodeIntegration: false,
       contextIsolation: true,
       preload: path.join(__dirname, 'preload.js'),
-      devTools: !app.isPackaged // DevTools nur in Development
+      devTools: false // DevTools komplett deaktiviert für Production
     },
     icon: path.join(__dirname, '../assets/icon.png.svg'),
     show: false // Don't show until ready
@@ -173,6 +173,26 @@ function createWindow() {
   mainWindow.on('closed', () => {
     console.log('Window closed event');
     mainWindow = null;
+  });
+
+  // Block DevTools shortcuts in production (F12, Ctrl+Shift+I, etc.)
+  mainWindow.webContents.on('before-input-event', (event, input) => {
+    // Block F12
+    if (input.key === 'F12') {
+      event.preventDefault();
+    }
+    // Block Ctrl+Shift+I (DevTools)
+    if (input.control && input.shift && input.key === 'I') {
+      event.preventDefault();
+    }
+    // Block Ctrl+Shift+J (Console)
+    if (input.control && input.shift && input.key === 'J') {
+      event.preventDefault();
+    }
+    // Block Ctrl+Shift+C (Inspect)
+    if (input.control && input.shift && input.key === 'C') {
+      event.preventDefault();
+    }
   });
 
   // Prevent window from closing on error
