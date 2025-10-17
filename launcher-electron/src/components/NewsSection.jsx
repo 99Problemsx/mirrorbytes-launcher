@@ -25,7 +25,7 @@ const NewsSection = ({ selectedGame }) => {
       const newsItems = filteredReleases.map((release, index) => ({
         id: release.id,
         title: release.name || release.tag_name,
-        description: release.body?.substring(0, 100) + '...' || 'Neue Version verfügbar',
+        description: release.body?.substring(0, 100) + '...' || t('newVersionAvailable'),
         date: new Date(release.published_at).toLocaleDateString('de-DE', {
           day: 'numeric',
           month: 'long',
@@ -43,7 +43,7 @@ const NewsSection = ({ selectedGame }) => {
         {
           id: 1,
           title: t('newsLoading'),
-          description: 'Aktuelle Updates und Patch Notes',
+          description: t('currentUpdates'),
           date: new Date().toLocaleDateString('de-DE'),
           tag: 'Update',
         }

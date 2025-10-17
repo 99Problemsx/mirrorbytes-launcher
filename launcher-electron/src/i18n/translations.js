@@ -352,6 +352,23 @@ export const translations = {
     themeTip4: 'Themes beeinflussen nicht die Performance',
     themeTip5: 'Wechsle zwischen Themes für verschiedene Stimmungen und Vorlieben',
     
+    // News Section
+    newVersionAvailable: 'Neue Version verfügbar',
+    currentUpdates: 'Aktuelle Updates und Patch Notes',
+    
+    // Launch Options
+    launchOptionsTitle: 'Launch-Optionen',
+    launchOptionsDesc: 'Konfiguriere wie das Spiel gestartet wird',
+    launchOptionsInfo: 'Diese Einstellungen werden beim nächsten Spielstart angewendet. Einige Optionen erfordern einen Neustart des Spiels.',
+    fullscreenMode: 'Vollbildmodus',
+    fullscreenDesc: 'Spiel im Vollbild starten',
+    skipIntro: 'Intro überspringen',
+    skipIntroDesc: 'Startet direkt ins Hauptmenü',
+    errorLoadingOptions: 'Fehler beim Laden der Launch-Optionen',
+    errorSavingOptions: 'Fehler beim Speichern der Launch-Optionen',
+    resetOptionsConfirm: '⚠️ Möchtest du alle Launch-Optionen zurücksetzen?',
+    debugOptions: 'Debug-Optionen',
+    
     // Errors & Messages
     error: 'Fehler',
     success: 'Erfolg',
@@ -732,6 +749,23 @@ export const translations = {
     themeTip3: 'Your theme selection is automatically saved',
     themeTip4: 'Themes do not affect performance',
     themeTip5: 'Switch between themes for different moods and preferences',
+    
+    // News Section
+    newVersionAvailable: 'New version available',
+    currentUpdates: 'Current updates and patch notes',
+    
+    // Launch Options
+    launchOptionsTitle: 'Launch Options',
+    launchOptionsDesc: 'Configure how the game is started',
+    launchOptionsInfo: 'These settings will be applied on next game launch. Some options require a game restart.',
+    fullscreenMode: 'Fullscreen Mode',
+    fullscreenDesc: 'Start game in fullscreen',
+    skipIntro: 'Skip Intro',
+    skipIntroDesc: 'Starts directly into main menu',
+    errorLoadingOptions: 'Error loading launch options',
+    errorSavingOptions: 'Error saving launch options',
+    resetOptionsConfirm: '⚠️ Do you want to reset all launch options?',
+    debugOptions: 'Debug Options',
     
     // Errors & Messages
     error: 'Error',

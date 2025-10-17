@@ -5,8 +5,10 @@ import {
   FiCheckCircle, FiCode, FiCpu, FiHardDrive
 } from 'react-icons/fi';
 import { toast } from 'react-toastify';
+import { useTranslation } from '../i18n/translations';
 
 const LaunchOptionsPage = () => {
+  const { t } = useTranslation();
   const [options, setOptions] = useState({
     // Graphics
     fullscreen: false,
@@ -43,7 +45,7 @@ const LaunchOptionsPage = () => {
         setOptions(JSON.parse(saved));
       }
     } catch (error) {
-      console.error('Fehler beim Laden der Launch-Optionen:', error);
+      console.error(t('errorLoadingOptions'), error);
     }
   };
 
@@ -51,10 +53,10 @@ const LaunchOptionsPage = () => {
     try {
       localStorage.setItem('mirrorbytes_launch_options', JSON.stringify(newOptions));
       setOptions(newOptions);
-      toast.success('⚙️ Einstellungen gespeichert');
+      toast.success(`⚙️ ${t('settingsSaved')}`);
     } catch (error) {
-      console.error('Fehler beim Speichern der Launch-Optionen:', error);
-      toast.error('❌ Fehler beim Speichern');
+      console.error(t('errorSavingOptions'), error);
+      toast.error(`❌ ${t('errorSavingOptions')}`);
     }
   };
 
@@ -64,7 +66,7 @@ const LaunchOptionsPage = () => {
   };
 
   const handleReset = () => {
-    if (!window.confirm('⚠️ Möchtest du alle Launch-Optionen zurücksetzen?')) {
+    if (!window.confirm(t('resetOptionsConfirm'))) {
       return;
     }
 
@@ -85,7 +87,7 @@ const LaunchOptionsPage = () => {
     };
 
     saveOptions(defaultOptions);
-    toast.info('🔄 Einstellungen zurückgesetzt');
+    toast.info(`🔄 ${t('themeResetSuccess')}`);
   };
 
   const resolutionOptions = [
@@ -108,10 +110,10 @@ const LaunchOptionsPage = () => {
           <div>
             <h1 className="text-4xl font-bold mb-2 flex items-center space-x-3">
               <FiTerminal className="text-theme-accent" size={32} />
-              <span>Launch-Optionen</span>
+              <span>{t('launchOptionsTitle')}</span>
             </h1>
             <p className="text-gray-400">
-              Konfiguriere wie das Spiel gestartet wird
+              {t('launchOptionsDesc')}
             </p>
           </div>
 
@@ -119,7 +121,7 @@ const LaunchOptionsPage = () => {
             onClick={handleReset}
             className="px-4 py-2 bg-white/5 hover:bg-white/10 rounded-lg transition-all border border-white/10"
           >
-            🔄 Zurücksetzen
+            🔄 {t('themeReset')}
           </button>
         </div>
 
@@ -128,10 +130,9 @@ const LaunchOptionsPage = () => {
           <div className="flex items-start space-x-4">
             <FiAlertCircle className="text-blue-400 flex-shrink-0 mt-1" size={24} />
             <div className="flex-1">
-              <h3 className="text-lg font-bold text-blue-400 mb-2">Hinweis</h3>
+              <h3 className="text-lg font-bold text-blue-400 mb-2">{t('info')}</h3>
               <p className="text-sm text-gray-300">
-                Diese Einstellungen werden beim nächsten Spielstart angewendet. 
-                Einige Optionen erfordern einen Neustart des Spiels.
+                {t('launchOptionsInfo')}
               </p>
             </div>
           </div>
@@ -148,8 +149,8 @@ const LaunchOptionsPage = () => {
             {/* Fullscreen */}
             <div className="flex items-center justify-between">
               <div className="flex-1">
-                <label className="font-medium text-lg">Vollbild-Modus</label>
-                <p className="text-sm text-gray-400">Spiel im Vollbild starten</p>
+                <label className="font-medium text-lg">{t('fullscreenMode')}</label>
+                <p className="text-sm text-gray-400">{t('fullscreenDesc')}</p>
               </div>
               <label className="relative inline-flex items-center cursor-pointer">
                 <input
@@ -223,8 +224,8 @@ const LaunchOptionsPage = () => {
             {/* Skip Intro */}
             <div className="flex items-center justify-between">
               <div className="flex-1">
-                <label className="font-medium text-lg">Intro überspringen</label>
-                <p className="text-sm text-gray-400">Startet direkt ins Hauptmenü</p>
+                <label className="font-medium text-lg">{t('skipIntro')}</label>
+                <p className="text-sm text-gray-400">{t('skipIntroDesc')}</p>
               </div>
               <label className="relative inline-flex items-center cursor-pointer">
                 <input
@@ -318,7 +319,7 @@ const LaunchOptionsPage = () => {
         <div className="glass-effect rounded-xl p-6 mb-6 border-2 border-red-500/30">
           <h2 className="text-2xl font-bold mb-6 flex items-center space-x-2">
             <FiCode className="text-red-400" />
-            <span>Debug-Optionen</span>
+            <span>{t('debugOptions')}</span>
           </h2>
 
           <div className="space-y-6">
