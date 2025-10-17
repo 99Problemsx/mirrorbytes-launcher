@@ -47,26 +47,65 @@
     "recharts": "^3.2.1"
   },
   "build": {
-    "appId": "com.mirrorbytes.launcher",
-    "productName": "Mirrorbytes Launcher",
+    "appId": "com.mirrorbytes.studio",
+    "productName": "Mirrorbytes Studio",
     "directories": {
-      "output": "dist-electron"
+      "output": "dist-electron",
+      "buildResources": "build"
     },
     "files": [
       "dist/**/*",
-      "electron/**/*"
+      "electron/**/*",
+      "!**/*.map",
+      "!**/node_modules/**"
     ],
     "win": {
-      "target": "nsis",
-      "icon": "assets/icon.ico"
+      "target": [
+        {
+          "target": "nsis",
+          "arch": ["x64"]
+        },
+        {
+          "target": "portable",
+          "arch": ["x64"]
+        }
+      ],
+      "icon": "build/icon.ico",
+      "artifactName": "${productName}-${version}-Setup.${ext}",
+      "publisherName": "Mirrorbytes Studio",
+      "verifyUpdateCodeSignature": false
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "shortcutName": "Mirrorbytes Studio",
+      "installerIcon": "build/icon.ico",
+      "uninstallerIcon": "build/icon.ico",
+      "installerHeaderIcon": "build/icon.ico",
+      "deleteAppDataOnUninstall": false,
+      "include": "build/installer.nsh"
+    },
+    "portable": {
+      "artifactName": "${productName}-${version}-Portable.${ext}"
     },
     "mac": {
-      "target": "dmg",
-      "icon": "assets/icon.icns"
+      "target": ["dmg", "zip"],
+      "icon": "build/icon.icns",
+      "category": "public.app-category.games",
+      "darkModeSupport": true
     },
     "linux": {
-      "target": "AppImage",
-      "icon": "assets/icon.png"
+      "target": ["AppImage", "deb"],
+      "icon": "build/icon.png",
+      "category": "Game"
+    },
+    "publish": {
+      "provider": "github",
+      "owner": "99Problemsx",
+      "repo": "mirrorbytes-launcher",
+      "releaseType": "release"
     }
   }
 }
