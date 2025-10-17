@@ -158,8 +158,8 @@ const BackupPage = ({ selectedGame }) => {
       const backupList = await backupService.listBackups();
       setBackups(backupList);
     } catch (error) {
-      console.error('Fehler beim Laden der Backups:', error);
-      toast.error('❌ Konnte Backups nicht laden');
+      console.error('Error loading backups:', error);
+      toast.error(t('couldNotLoadBackups'));
     }
     setLoading(false);
   };
@@ -170,30 +170,30 @@ const BackupPage = ({ selectedGame }) => {
       const cfg = backupService.getConfig();
       setConfig(cfg);
     } catch (error) {
-      console.error('Fehler beim Laden der Konfiguration:', error);
+      console.error(t('couldNotLoadConfig'), error);
     }
   };
 
   const handleCreateBackup = async () => {
     if (isDemoMode) {
-      toast.info('💾 Demo-Modus: Backup würde erstellt werden');
+      toast.info(t('demoCreateBackup'));
       return;
     }
     
     setLoading(true);
-    toast.info('💾 Erstelle Backup...', { autoClose: 1000 });
+    toast.info(t('creatingBackup'), { autoClose: 1000 });
     
     try {
-      const result = await backupService.createBackup(`Manuelles Backup - ${new Date().toLocaleString('de-DE')}`);
+      const result = await backupService.createBackup(`Manual Backup - ${new Date().toLocaleString()}`);
       
       if (result.success) {
-        toast.success('✅ Backup erfolgreich erstellt!');
+        toast.success(t('backupCreatedSuccess'));
         await loadBackups();
       } else {
-        toast.error(`❌ Fehler: ${result.error}`);
+        toast.error(`❌ ${result.error}`);
       }
     } catch (error) {
-      toast.error('❌ Fehler beim Erstellen des Backups');
+      toast.error('❌ ' + error.message);
     }
     
     setLoading(false);
@@ -201,28 +201,28 @@ const BackupPage = ({ selectedGame }) => {
 
   const handleRestoreBackup = async (backupName) => {
     if (isDemoMode) {
-      toast.info('🔄 Demo-Modus: Backup würde wiederhergestellt werden');
+      toast.info(t('demoRestoreBackup'));
       return;
     }
 
-    if (!window.confirm('⚠️ Möchtest du dieses Backup wirklich wiederherstellen? Der aktuelle Spielstand wird ersetzt!')) {
+    if (!window.confirm(t('confirmRestore'))) {
       return;
     }
 
     setLoading(true);
-    toast.info('🔄 Stelle Backup wieder her...', { autoClose: 2000 });
+    toast.info(t('restoringBackup'), { autoClose: 2000 });
     
     try {
       const result = await backupService.restoreBackup(backupName);
       
       if (result.success) {
-        toast.success('✅ Backup erfolgreich wiederhergestellt!');
+        toast.success(t('backupRestoredSuccess'));
         await loadBackups();
       } else {
-        toast.error(`❌ Fehler: ${result.error}`);
+        toast.error(`❌ ${result.error}`);
       }
     } catch (error) {
-      toast.error('❌ Fehler beim Wiederherstellen');
+      toast.error('❌ ' + error.message);
     }
     
     setLoading(false);
@@ -230,11 +230,11 @@ const BackupPage = ({ selectedGame }) => {
 
   const handleDeleteBackup = async (backupName) => {
     if (isDemoMode) {
-      toast.info('🗑️ Demo-Modus: Backup würde gelöscht werden');
+      toast.info(t('demoDeleteBackup'));
       return;
     }
 
-    if (!window.confirm('⚠️ Möchtest du dieses Backup wirklich löschen?')) {
+    if (!window.confirm(t('confirmDelete'))) {
       return;
     }
 
@@ -242,26 +242,26 @@ const BackupPage = ({ selectedGame }) => {
       const result = await backupService.deleteBackup(backupName);
       
       if (result.success) {
-        toast.success('🗑️ Backup gelöscht');
+        toast.success(t('backupDeleted'));
         await loadBackups();
       } else {
-        toast.error(`❌ Fehler: ${result.error}`);
+        toast.error(`❌ ${result.error}`);
       }
     } catch (error) {
-      toast.error('❌ Fehler beim Löschen');
+      toast.error('❌ ' + error.message);
     }
   };
 
   const handleRenameBackup = async (backupName) => {
     if (isDemoMode) {
-      toast.info('✏️ Demo-Modus: Backup würde umbenannt werden');
+      toast.info('✏️ ' + t('demoMode'));
       setEditingBackup(null);
       setNewName('');
       return;
     }
 
     if (!newName.trim()) {
-      toast.error('❌ Bitte einen Namen eingeben');
+      toast.error(t('pleaseEnterCode'));
       return;
     }
 
@@ -269,21 +269,21 @@ const BackupPage = ({ selectedGame }) => {
       const result = await backupService.renameBackup(backupName, newName);
       
       if (result.success) {
-        toast.success('✅ Backup umbenannt');
+        toast.success(t('backupRenamed'));
         setEditingBackup(null);
         setNewName('');
         await loadBackups();
       } else {
-        toast.error(`❌ Fehler: ${result.error}`);
+        toast.error(`❌ ${result.error}`);
       }
     } catch (error) {
-      toast.error('❌ Fehler beim Umbenennen');
+      toast.error('❌ ' + error.message);
     }
   };
 
   const handleUpdateConfig = (updates) => {
     if (isDemoMode) {
-      toast.info('⚙️ Demo-Modus: Einstellungen würden gespeichert');
+      toast.info('⚙️ ' + t('demoMode'));
       setConfig({ ...config, ...updates });
       return;
     }
@@ -292,15 +292,15 @@ const BackupPage = ({ selectedGame }) => {
       const newConfig = { ...config, ...updates };
       backupService.updateConfig(newConfig);
       setConfig(newConfig);
-      toast.success('⚙️ Einstellungen gespeichert');
+      toast.success(t('settingsSaved'));
     } catch (error) {
-      toast.error('❌ Fehler beim Speichern der Einstellungen');
+      toast.error('❌ ' + error.message);
     }
   };
 
   const handleChangeSavePath = () => {
     if (isDemoMode) {
-      toast.info('📁 Demo-Modus: Pfad-Auswahl nicht verfügbar');
+      toast.info(t('demoOpenFolder'));
       return;
     }
 
@@ -309,13 +309,13 @@ const BackupPage = ({ selectedGame }) => {
       
       dialog.showOpenDialog({
         properties: ['openDirectory'],
-        title: 'Spielstand-Ordner auswählen'
+        title: t('selectFolderTitle')
       }).then(result => {
         if (!result.canceled && result.filePaths.length > 0) {
           const path = result.filePaths[0];
           setSavePath(path);
           backupService.setSavePath(path);
-          toast.success('📁 Spielstand-Pfad aktualisiert');
+          toast.success(t('pathUpdated'));
         }
       });
     } catch (error) {
@@ -360,9 +360,9 @@ const BackupPage = ({ selectedGame }) => {
             <div className="flex items-center space-x-3">
               <FiAlertCircle className="text-yellow-400 flex-shrink-0" size={24} />
               <div>
-                <p className="font-bold text-yellow-400">Demo-Modus</p>
+                <p className="font-bold text-yellow-400">{t('demoMode')}</p>
                 <p className="text-sm text-yellow-200">
-                  Backup-Funktionen sind im Entwicklungsmodus nicht verfügbar. Demo-Daten werden angezeigt.
+                  {t('demoModeDesc')}
                 </p>
               </div>
             </div>
@@ -374,10 +374,10 @@ const BackupPage = ({ selectedGame }) => {
           <div>
             <h1 className="text-4xl font-bold mb-2 flex items-center space-x-3">
               <FiSave className="text-theme-accent" size={32} />
-              <span>Spielstand-Backups</span>
+              <span>{t('backupPageTitle')}</span>
             </h1>
             <p className="text-gray-400">
-              Sichere und stelle deine Spielstände wieder her
+              {t('backupPageDesc')}
             </p>
           </div>
 
@@ -387,7 +387,7 @@ const BackupPage = ({ selectedGame }) => {
               className="px-4 py-2 bg-white/5 hover:bg-white/10 rounded-lg transition-all border border-white/10 flex items-center space-x-2"
             >
               <FiSettings size={18} />
-              <span>Einstellungen</span>
+              <span>{t('settingsButton')}</span>
             </button>
             
             <button
@@ -400,7 +400,7 @@ const BackupPage = ({ selectedGame }) => {
               }}
             >
               <FiDownload size={18} />
-              <span>Backup erstellen</span>
+              <span>{t('createBackupButton')}</span>
             </button>
           </div>
         </div>
@@ -416,17 +416,17 @@ const BackupPage = ({ selectedGame }) => {
             >
               <h3 className="text-xl font-bold mb-4 flex items-center space-x-2">
                 <FiSettings className="text-theme-accent" />
-                <span>Backup-Einstellungen</span>
+                <span>{t('backupSettings')}</span>
               </h3>
 
               <div className="space-y-4">
                 {/* Spielstand-Pfad */}
                 <div>
-                  <label className="block text-sm font-medium mb-2">Spielstand-Ordner</label>
+                  <label className="block text-sm font-medium mb-2">{t('saveFolder')}</label>
                   <p className="text-xs text-gray-400 mb-2">
-                    Pokémon Essentials v21+ speichert Spielstände in: %appdata%\{selectedGame.name}
+                    {t('saveFolderHint')}{selectedGame.name}
                     <br />
-                    Klicke auf 🔄 um automatisch nach dem Ordner zu suchen oder 📁 um manuell auszuwählen
+                    {t('saveFolderHint2')}
                   </p>
                   <div className="flex items-center space-x-2">
                     <input
@@ -438,21 +438,21 @@ const BackupPage = ({ selectedGame }) => {
                     <button
                       onClick={() => {
                         if (isDemoMode) {
-                          toast.info('🔍 Demo-Modus: Scan nicht verfügbar');
+                          toast.info(t('demoScanFolder'));
                           return;
                         }
-                        toast.info('🔍 Suche nach Spielstand-Ordner...');
+                        toast.info(t('scanningFolder'));
                         scanForSavePath();
                       }}
                       className="px-4 py-2 bg-white/5 hover:bg-white/10 rounded-lg transition-all border border-white/10"
-                      title="Automatisch nach Spielstand-Ordner suchen"
+                      title={t('autoScanTitle')}
                     >
                       <FiRefreshCw size={18} />
                     </button>
                     <button
                       onClick={handleChangeSavePath}
                       className="px-4 py-2 bg-white/5 hover:bg-white/10 rounded-lg transition-all border border-white/10"
-                      title="Anderen Ordner auswählen"
+                      title={t('selectFolderTitle')}
                     >
                       <FiFolderPlus size={18} />
                     </button>
@@ -468,21 +468,21 @@ const BackupPage = ({ selectedGame }) => {
                       onChange={(e) => handleUpdateConfig({ autoBackupEnabled: e.target.checked })}
                       className="w-5 h-5 rounded"
                     />
-                    <span className="font-medium">Automatische Backups aktivieren</span>
+                    <span className="font-medium">{t('autoBackupEnabled')}</span>
                   </label>
                 </div>
 
                 {/* Backup-Intervall */}
                 {config?.autoBackupEnabled && (
                   <div>
-                    <label className="block text-sm font-medium mb-2">Backup-Intervall</label>
+                    <label className="block text-sm font-medium mb-2">{t('backupInterval')}</label>
                     <select
                       value={config?.autoBackupInterval || 'daily'}
                       onChange={(e) => handleUpdateConfig({ autoBackupInterval: e.target.value })}
                       className="px-4 py-2 bg-dark-800 border border-gray-700 rounded-lg"
                     >
-                      <option value="daily">Täglich</option>
-                      <option value="weekly">Wöchentlich</option>
+                      <option value="daily">{t('daily')}</option>
+                      <option value="weekly">{t('weekly')}</option>
                     </select>
                   </div>
                 )}
@@ -490,7 +490,7 @@ const BackupPage = ({ selectedGame }) => {
                 {/* Max Backups */}
                 <div>
                   <label className="block text-sm font-medium mb-2">
-                    Maximale Anzahl an Backups: {config?.maxBackups || 10}
+                    {t('maxBackups')}: {config?.maxBackups || 10}
                   </label>
                   <input
                     type="range"
@@ -506,19 +506,19 @@ const BackupPage = ({ selectedGame }) => {
                 <button
                   onClick={() => {
                     if (isDemoMode) {
-                      toast.info('📁 Demo-Modus: Ordner öffnen nicht verfügbar');
+                      toast.info(t('demoOpenFolder'));
                       return;
                     }
                     try {
                       backupService.openBackupFolder();
                     } catch (error) {
-                      toast.error('❌ Konnte Ordner nicht öffnen');
+                      toast.error(t('couldNotOpenFolder'));
                     }
                   }}
                   className="px-4 py-2 bg-white/5 hover:bg-white/10 rounded-lg transition-all border border-white/10 flex items-center space-x-2"
                 >
                   <FiFolderPlus size={18} />
-                  <span>Backup-Ordner öffnen</span>
+                  <span>{t('openBackupFolder')}</span>
                 </button>
               </div>
             </motion.div>
@@ -530,12 +530,12 @@ const BackupPage = ({ selectedGame }) => {
           <div className="flex items-start space-x-4">
             <FiAlertCircle className="text-blue-400 flex-shrink-0 mt-1" size={24} />
             <div className="flex-1">
-              <h3 className="text-lg font-bold text-blue-400 mb-2">Wichtige Hinweise</h3>
+              <h3 className="text-lg font-bold text-blue-400 mb-2">{t('importantNotes')}</h3>
               <ul className="text-sm text-gray-300 space-y-1">
-                <li>• Backups werden lokal auf deinem Computer gespeichert</li>
-                <li>• Vor jedem Restore wird automatisch ein Sicherheits-Backup erstellt</li>
-                <li>• Stelle sicher, dass das Spiel geschlossen ist bevor du ein Backup wiederherstellst</li>
-                <li>• Automatische Backups werden basierend auf dem eingestellten Intervall erstellt</li>
+                <li>{t('backupNote1')}</li>
+                <li>{t('backupNote2')}</li>
+                <li>{t('backupNote3')}</li>
+                <li>{t('backupNote4')}</li>
               </ul>
             </div>
           </div>
@@ -546,7 +546,7 @@ const BackupPage = ({ selectedGame }) => {
           <div className="glass-effect rounded-xl p-6 border-2 border-gray-700">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-gray-400 mb-1">Gesamt-Backups</p>
+                <p className="text-sm text-gray-400 mb-1">{t('totalBackups')}</p>
                 <p className="text-3xl font-bold text-theme-accent">{backups.length}</p>
               </div>
               <FiHardDrive className="text-theme-accent" size={32} />
@@ -556,9 +556,9 @@ const BackupPage = ({ selectedGame }) => {
           <div className="glass-effect rounded-xl p-6 border-2 border-gray-700">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-gray-400 mb-1">Letztes Backup</p>
+                <p className="text-sm text-gray-400 mb-1">{t('lastBackup')}</p>
                 <p className="text-lg font-bold">
-                  {backups.length > 0 ? formatDate(backups[0].created) : 'Keine Backups'}
+                  {backups.length > 0 ? formatDate(backups[0].created) : t('never')}
                 </p>
               </div>
               <FiClock className="text-green-400" size={32} />
@@ -568,7 +568,7 @@ const BackupPage = ({ selectedGame }) => {
           <div className="glass-effect rounded-xl p-6 border-2 border-gray-700">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-gray-400 mb-1">Gesamtgröße</p>
+                <p className="text-sm text-gray-400 mb-1">{t('totalSize')}</p>
                 <p className="text-2xl font-bold">
                   {formatSize(backups.reduce((sum, b) => sum + (b.size || 0), 0))}
                 </p>
@@ -581,7 +581,7 @@ const BackupPage = ({ selectedGame }) => {
         {/* Backup List */}
         <div>
           <div className="flex items-center justify-between mb-4">
-            <h2 className="text-2xl font-bold">Verfügbare Backups</h2>
+            <h2 className="text-2xl font-bold">{t('backupListTitle')}</h2>
             <button
               onClick={loadBackups}
               className="px-4 py-2 bg-white/5 hover:bg-white/10 rounded-lg transition-all border border-white/10"
@@ -593,13 +593,13 @@ const BackupPage = ({ selectedGame }) => {
           {loading && backups.length === 0 ? (
             <div className="glass-effect rounded-xl p-12 text-center">
               <div className="animate-spin mx-auto mb-4 w-12 h-12 border-4 border-theme-primary border-t-transparent rounded-full"></div>
-              <p className="text-gray-400">Lade Backups...</p>
+              <p className="text-gray-400">{t('newsLoading')}...</p>
             </div>
           ) : backups.length === 0 ? (
             <div className="glass-effect rounded-xl p-12 text-center">
               <FiAlertCircle className="mx-auto mb-4 text-gray-500" size={48} />
-              <p className="text-xl font-bold mb-2">Keine Backups vorhanden</p>
-              <p className="text-gray-400 mb-4">Erstelle dein erstes Backup mit dem Button oben</p>
+              <p className="text-xl font-bold mb-2">{t('noBackupsYet')}</p>
+              <p className="text-gray-400 mb-4">{t('createFirstBackup')}</p>
             </div>
           ) : (
             <div className="space-y-4">
@@ -669,7 +669,7 @@ const BackupPage = ({ selectedGame }) => {
                           setNewName(backup.displayName);
                         }}
                         className="p-2 bg-white/5 hover:bg-white/10 rounded-lg transition-all border border-white/10"
-                        title="Umbenennen"
+                        title={t('renameBackup')}
                       >
                         <FiEdit2 size={18} />
                       </button>
@@ -678,16 +678,16 @@ const BackupPage = ({ selectedGame }) => {
                         onClick={() => handleRestoreBackup(backup.name)}
                         disabled={loading}
                         className="px-4 py-2 bg-green-500 hover:bg-green-600 rounded-lg transition-all flex items-center space-x-2"
-                        title="Wiederherstellen"
+                        title={t('restoreBackup')}
                       >
                         <FiUpload size={18} />
-                        <span>Restore</span>
+                        <span>{t('restoreBackup')}</span>
                       </button>
                       
                       <button
                         onClick={() => handleDeleteBackup(backup.name)}
                         className="p-2 bg-red-500/20 hover:bg-red-500/30 text-red-400 rounded-lg transition-all"
-                        title="Löschen"
+                        title={t('deleteBackup')}
                       >
                         <FiTrash2 size={18} />
                       </button>
