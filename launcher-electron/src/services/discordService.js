@@ -1,56 +1,87 @@
 /**
- * Discord Rich Presence Service
- * Zeigt deine Mirrorbytes-Aktivität in Discord
+ * Discord Rich Presence Service - Multi-Game Support
+ * Zeigt deine Mirrorbytes-Aktivität in Discord mit separaten Applications für jedes Spiel
  */
 
 const DiscordRPC = require('discord-rpc');
 
 class DiscordService {
   constructor() {
-    this.client = null;
-    // TODO: Erstelle eine Discord Application auf https://discord.com/developers/applications
-    // und ersetze diese ID mit deiner echten Application ID
-    this.clientId = process.env.DISCORD_CLIENT_ID || '1234567890123456789';
+    this.clients = new Map(); // Separate clients für jedes Spiel
+    this.currentClient = null;
+    this.currentGameId = null;
+    
+    // Discord Application IDs - eine für jedes Spiel
+    this.gameClients = {
+      illusion: {
+        id: '1428590219430461602', // Illusion Discord App
+        name: 'Illusion',
+        enabled: true
+      },
+      zorua: {
+        id: process.env.DISCORD_CLIENT_ID_ZORUA || '1428590219430461602', // TODO: Zweite Discord App für Zorua
+        name: 'Zorua - The Divine Deception',
+        enabled: !!process.env.DISCORD_CLIENT_ID_ZORUA
+      },
+      launcher: {
+        id: '1428590219430461602', // Fallback für Launcher
+        name: 'Mirrorbytes Studio',
+        enabled: true
+      }
+    };
+    
     this.isConnected = false;
     this.currentActivity = null;
-    this.startTimestamp = null;
-    this.enabled = process.env.DISCORD_CLIENT_ID ? true : false;
+    this.startTimestamp = Date.now();
   }
 
   /**
-   * Initialisiere Discord RPC
+   * Initialisiere Discord RPC für ein bestimmtes Spiel
    */
-  async initialize() {
+  async initialize(gameId = 'launcher') {
     try {
-      if (!this.enabled) {
-        console.log('⚠️  Discord Rich Presence disabled - set DISCORD_CLIENT_ID environment variable');
+      const gameConfig = this.gameClients[gameId];
+      
+      if (!gameConfig || !gameConfig.enabled) {
+        console.log(`⚠️  Discord Rich Presence for ${gameId} not configured`);
         return false;
       }
 
-      if (this.isConnected) {
-        console.log('Discord RPC already connected');
+      // Wenn bereits mit diesem Game verbunden, nichts tun
+      if (this.currentGameId === gameId && this.isConnected) {
+        console.log(`Already connected to Discord for ${gameId}`);
         return true;
       }
 
-      this.client = new DiscordRPC.Client({ transport: 'ipc' });
+      // Disconnect von vorherigem Game falls nötig
+      if (this.isConnected && this.currentGameId !== gameId) {
+        await this.disconnect();
+      }
+
+      const client = new DiscordRPC.Client({ transport: 'ipc' });
       
-      this.client.on('ready', () => {
-        console.log('✅ Discord Rich Presence connected!');
-        console.log('Logged in as:', this.client.user.username);
+      client.on('ready', () => {
+        console.log(`✅ Discord Rich Presence connected for ${gameConfig.name}!`);
+        console.log('Logged in as:', client.user.username);
         this.isConnected = true;
+        this.currentClient = client;
+        this.currentGameId = gameId;
         this.startTimestamp = Date.now();
-        this.setLauncherActivity();
       });
 
-      this.client.on('disconnected', () => {
-        console.log('❌ Discord Rich Presence disconnected');
+      client.on('disconnected', () => {
+        console.log(`❌ Discord Rich Presence disconnected for ${gameConfig.name}`);
         this.isConnected = false;
+        this.currentClient = null;
+        this.currentGameId = null;
       });
 
-      await this.client.login({ clientId: this.clientId });
+      await client.login({ clientId: gameConfig.id });
+      this.clients.set(gameId, client);
+      
       return true;
     } catch (error) {
-      console.error('Failed to initialize Discord RPC:', error);
+      console.error(`Failed to initialize Discord RPC for ${gameId}:`, error);
       return false;
     }
   }
@@ -58,7 +89,10 @@ class DiscordService {
   /**
    * Setze Activity wenn Launcher offen ist
    */
-  setLauncherActivity(selectedGame = null) {
+  async setLauncherActivity(selectedGame = null) {
+    // Initialisiere mit launcher client
+    await this.initialize('launcher');
+    
     if (!this.isConnected) return;
 
     const state = selectedGame 
@@ -84,16 +118,21 @@ class DiscordService {
    */
   getGameIcon(gameId) {
     const icons = {
-      'illusion': 'illusion_icon',
-      'zorua': 'zorua_icon'
+      'illusion': 'illusion_logo',
+      'zorua': 'zorua_logo'
     };
-    return icons[gameId] || 'game_icon';
+    return icons[gameId] || 'game_logo';
   }
 
   /**
    * Setze Activity wenn Game läuft
    */
-  setGameActivity(gameInfo = {}, selectedGame = {}) {
+  async setGameActivity(gameInfo = {}, selectedGame = {}) {
+    const gameId = selectedGame.id || 'game';
+    
+    // Wechsle zur richtigen Discord Application für dieses Spiel
+    await this.initialize(gameId);
+    
     if (!this.isConnected) return;
 
     const {
@@ -107,7 +146,6 @@ class DiscordService {
     } = gameInfo;
 
     const gameName = selectedGame.name || 'Pokémon Game';
-    const gameId = selectedGame.id || 'game';
     const repoUrl = `https://github.com/99Problemsx/${selectedGame.repo}`;
 
     // Formatiere die Location-Anzeige
@@ -138,7 +176,7 @@ class DiscordService {
         },
         {
           label: '💬 Discord Server',
-          url: 'https://discord.gg/your-server' // TODO: Discord Link
+          url: 'https://discord.gg/mirrorbytes' // TODO: Echten Discord Link
         }
       ]
     };
@@ -155,10 +193,14 @@ class DiscordService {
   /**
    * Setze Activity für spezifische Szenarien
    */
-  setCustomActivity(type, data = {}) {
+  async setCustomActivity(type, data = {}) {
+    const gameId = data.gameId || 'game';
+    
+    // Wechsle zur richtigen Discord Application für dieses Spiel
+    await this.initialize(gameId);
+    
     if (!this.isConnected) return;
 
-    const gameId = data.gameId || 'game';
     const gameName = data.gameName || 'Pokémon Game';
 
     switch (type) {
@@ -267,11 +309,11 @@ class DiscordService {
    * Update die aktuelle Activity
    */
   async updateActivity() {
-    if (!this.isConnected || !this.currentActivity) return;
+    if (!this.isConnected || !this.currentActivity || !this.currentClient) return;
 
     try {
-      await this.client.setActivity(this.currentActivity);
-      console.log('✅ Discord activity updated:', this.currentActivity.details);
+      await this.currentClient.setActivity(this.currentActivity);
+      console.log(`✅ Discord activity updated (${this.currentGameId}):`, this.currentActivity.details);
     } catch (error) {
       console.error('Failed to update Discord activity:', error);
     }
@@ -281,10 +323,10 @@ class DiscordService {
    * Clear Activity
    */
   async clearActivity() {
-    if (!this.isConnected) return;
+    if (!this.isConnected || !this.currentClient) return;
 
     try {
-      await this.client.clearActivity();
+      await this.currentClient.clearActivity();
       this.currentActivity = null;
       console.log('✅ Discord activity cleared');
     } catch (error) {
@@ -296,25 +338,45 @@ class DiscordService {
    * Disconnect from Discord
    */
   async disconnect() {
-    if (!this.isConnected) return;
+    if (!this.isConnected || !this.currentClient) return;
 
     try {
       await this.clearActivity();
-      await this.client.destroy();
+      await this.currentClient.destroy();
+      this.clients.delete(this.currentGameId);
       this.isConnected = false;
-      this.client = null;
-      console.log('✅ Discord RPC disconnected');
+      this.currentClient = null;
+      console.log(`✅ Discord RPC disconnected (${this.currentGameId})`);
+      this.currentGameId = null;
     } catch (error) {
       console.error('Failed to disconnect Discord RPC:', error);
     }
   }
 
   /**
-   * Reconnect
+   * Disconnect from all games
    */
-  async reconnect() {
+  async disconnectAll() {
+    for (const [gameId, client] of this.clients.entries()) {
+      try {
+        await client.destroy();
+        console.log(`✅ Disconnected from ${gameId}`);
+      } catch (error) {
+        console.error(`Failed to disconnect from ${gameId}:`, error);
+      }
+    }
+    this.clients.clear();
+    this.isConnected = false;
+    this.currentClient = null;
+    this.currentGameId = null;
+  }
+
+  /**
+   * Reconnect mit neuem Spiel
+   */
+  async reconnect(gameId = 'launcher') {
     await this.disconnect();
-    await this.initialize();
+    await this.initialize(gameId);
   }
 }
 

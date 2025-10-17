@@ -67,6 +67,13 @@ launcher-tauri/
 launcher-electron/dist/
 launcher-electron/out/
 
+# Environment variables (NEVER commit!)
+.env
+.env.local
+.env.production
+.env.development
+*.env
+
 # Development
 .vscode/
 .idea/

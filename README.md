@@ -21,7 +21,7 @@ Ein moderner, benutzerfreundlicher Launcher für **mehrere Pokémon Fangames**:
 - **Multi-Game Support** - Verwalte mehrere Spiele
 - **Auto-Updates** - Automatische Spiel-Updates
 - **GitHub Integration** - Direkte Downloads & Changelogs
-- **Discord Rich Presence** - Zeige, was du spielst
+- **Discord Rich Presence** - Separate Apps für jedes Spiel ([Setup Guide](DISCORD_SETUP.md))
 - **Achievements & Rewards** - Sammle Erfolge
 - **Mystery Gifts** - Löse Codes ein
 
@@ -91,12 +91,24 @@ Automatische Updates werden über den **main Branch** verwaltet:
 - Automated Testing
 - Release Management
 
-## Ressourcen
+## 📚 Dokumentation
 
-- [ **Main Branch**](https://github.com/99Problemsx/Illusion/tree/main) - Dokumentation & CI/CD
-- [ **Website**](https://99problemsx.github.io/Illusion/) - Pokédex, FAQ, Team
-- [ **Wiki**](https://github.com/99Problemsx/Illusion/wiki) - Guides & Tutorials
-- [ **Discussions**](https://github.com/99Problemsx/Illusion/discussions) - Community Q&A
+### Setup Guides:
+
+- 🎮 [**Discord Rich Presence Setup**](DISCORD_SETUP.md) - Multi-Game Discord Integration
+- 🔧 [**Discord Quick Reference**](DISCORD_README.md) - Schnellstart & Troubleshooting
+- 🏗️ [**Build Guide**](BUILD_GUIDE.md) - Launcher bauen & deployen
+- ✅ [**Setup Checklist**](SETUP_CHECKLIST.md) - Was ist zu tun?
+
+### Games:
+
+- 🎲 [**Illusion**](https://github.com/99Problemsx/Illusion) - Main Pokémon Fangame
+- 🦊 [**Zorua - The Divine Deception**](https://github.com/99Problemsx/Zorua-the-divine-deception) - Zweites Fangame
+
+### Community:
+
+- 💬 [**Discussions**](https://github.com/99Problemsx/mirrorbytes-launcher/discussions) - Community Q&A
+- 🐛 [**Issues**](https://github.com/99Problemsx/mirrorbytes-launcher/issues) - Bug Reports & Features
 
 ## Contributing
 
