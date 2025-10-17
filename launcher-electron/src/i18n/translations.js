@@ -398,6 +398,7 @@ export const translations = {
     autoUpdateDesc: 'Lädt Updates automatisch im Hintergrund herunter',
     updateHistory: 'Update-Verlauf',
     newVersionAvailableTitle: 'Neue Version verfügbar!',
+    downloadingUpdate: 'Bitte warte, während das Update heruntergeladen wird...',
     
     // Errors & Messages
     error: 'Fehler',
@@ -826,6 +827,7 @@ export const translations = {
     autoUpdateDesc: 'Downloads updates automatically in the background',
     updateHistory: 'Update History',
     newVersionAvailableTitle: 'New Version Available!',
+    downloadingUpdate: 'Please wait while the update is being downloaded...',
     
     // Errors & Messages
     error: 'Error',

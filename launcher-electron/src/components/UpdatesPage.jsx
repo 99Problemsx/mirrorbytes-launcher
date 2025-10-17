@@ -297,7 +297,7 @@ const UpdatesPage = ({ selectedGame }) => {
                     />
                   </div>
                   <p className="text-sm text-gray-400 mt-2">
-                    Bitte warte, während das Update heruntergeladen wird...
+                    {t('downloadingUpdate')}
                   </p>
                 </div>
               )}
