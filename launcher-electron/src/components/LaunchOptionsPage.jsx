@@ -400,32 +400,32 @@ const LaunchOptionsPage = () => {
         <div className="glass-effect rounded-xl p-6 border-2 border-green-500/30">
           <h3 className="text-lg font-bold text-green-400 mb-3 flex items-center space-x-2">
             <FiCheckCircle />
-            <span>Aktuelle Konfiguration</span>
+            <span>{t('currentConfiguration')}</span>
           </h3>
           <div className="grid grid-cols-2 md:grid-cols-3 gap-4 text-sm">
             <div>
-              <p className="text-gray-400">Vollbild</p>
-              <p className="font-bold">{options.fullscreen ? 'Ja' : 'Nein'}</p>
+              <p className="text-gray-400">{t('fullscreen')}</p>
+              <p className="font-bold">{options.fullscreen ? t('yes') : t('no')}</p>
             </div>
             <div>
-              <p className="text-gray-400">Auflösung</p>
+              <p className="text-gray-400">{t('resolution')}</p>
               <p className="font-bold">{resolutionOptions.find(r => r.value === options.resolution)?.label}</p>
             </div>
             <div>
-              <p className="text-gray-400">VSync</p>
-              <p className="font-bold">{options.vsync ? 'An' : 'Aus'}</p>
+              <p className="text-gray-400">{t('vsync')}</p>
+              <p className="font-bold">{options.vsync ? t('on') : t('off')}</p>
             </div>
             <div>
-              <p className="text-gray-400">Master Volume</p>
+              <p className="text-gray-400">{t('masterVolume')}</p>
               <p className="font-bold">{options.masterVolume}%</p>
             </div>
             <div>
-              <p className="text-gray-400">Debug-Modus</p>
-              <p className="font-bold text-red-400">{options.debugMode ? 'Aktiv' : 'Inaktiv'}</p>
+              <p className="text-gray-400">{t('debugMode')}</p>
+              <p className="font-bold text-red-400">{options.debugMode ? t('active') : t('inactive')}</p>
             </div>
             <div>
-              <p className="text-gray-400">Skip Intro</p>
-              <p className="font-bold">{options.skipIntro ? 'Ja' : 'Nein'}</p>
+              <p className="text-gray-400">{t('skipIntro')}</p>
+              <p className="font-bold">{options.skipIntro ? t('yes') : t('no')}</p>
             </div>
           </div>
         </div>

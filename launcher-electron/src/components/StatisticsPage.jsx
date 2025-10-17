@@ -363,7 +363,7 @@ const StatisticsPage = () => {
           onClick={handleReset}
           className="px-4 py-2 bg-red-600/20 hover:bg-red-600/30 border border-red-500/50 rounded-lg text-red-400 transition-all"
         >
-          🔄 Statistiken zurücksetzen
+          🔄 {t('resetStatistics')}
         </button>
       </motion.div>
     </div>

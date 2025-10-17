@@ -200,6 +200,7 @@ export const translations = {
     reward: 'Belohnung',
     remaining: 'Noch',
     allMilestones: 'Alle Milestones',
+    allMilestonesReached: 'Alle Milestones erreicht!',
     weekly: 'Wöchentlich',
     monthly: 'Monatlich',
     century: 'Jahrhundert',
@@ -399,6 +400,13 @@ export const translations = {
     updateHistory: 'Update-Verlauf',
     newVersionAvailableTitle: 'Neue Version verfügbar!',
     downloadingUpdate: 'Bitte warte, während das Update heruntergeladen wird...',
+    currentConfiguration: 'Aktuelle Konfiguration',
+    fullscreen: 'Vollbild',
+    yes: 'Ja',
+    no: 'Nein',
+    active: 'Aktiv',
+    inactive: 'Inaktiv',
+    resetStatistics: 'Statistiken zurücksetzen',
     
     // Errors & Messages
     error: 'Fehler',
@@ -629,6 +637,7 @@ export const translations = {
     reward: 'Reward',
     remaining: 'Remaining',
     allMilestones: 'All Milestones',
+    allMilestonesReached: 'All Milestones reached!',
     weekly: 'Weekly',
     monthly: 'Monthly',
     century: 'Century',
@@ -828,6 +837,13 @@ export const translations = {
     updateHistory: 'Update History',
     newVersionAvailableTitle: 'New Version Available!',
     downloadingUpdate: 'Please wait while the update is being downloaded...',
+    currentConfiguration: 'Current Configuration',
+    fullscreen: 'Fullscreen',
+    yes: 'Yes',
+    no: 'No',
+    active: 'Active',
+    inactive: 'Inactive',
+    resetStatistics: 'Reset Statistics',
     
     // Errors & Messages
     error: 'Error',
