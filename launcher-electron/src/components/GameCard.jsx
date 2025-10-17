@@ -275,7 +275,7 @@ const GameCard = ({ game }) => {
   };
 
   const handleUninstall = async () => {
-    if (!window.confirm('Möchtest du das Spiel wirklich deinstallieren? Alle Dateien werden gelöscht!')) {
+    if (!window.confirm(t('uninstallConfirm'))) {
       return;
     }
 
@@ -420,7 +420,7 @@ const GameCard = ({ game }) => {
                 }`}
               >
                 <FiPlay size={24} />
-                <span>{isLaunching ? 'Startet...' : 'SPIELEN'}</span>
+                <span>{isLaunching ? t('starting') : t('playGame')}</span>
               </motion.button>
               
               {/* Uninstall Button */}
@@ -429,7 +429,7 @@ const GameCard = ({ game }) => {
                 whileTap={{ scale: 0.95 }}
                 onClick={handleUninstall}
                 className="p-4 bg-gradient-to-r from-gray-600 to-gray-700 hover:shadow-lg hover:shadow-gray-500/50 rounded-xl transition-all"
-                title="Spiel deinstallieren"
+                title={t('uninstallGame')}
               >
                 <FiRefreshCw size={24} className="rotate-180" />
               </motion.button>

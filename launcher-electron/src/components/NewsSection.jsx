@@ -1,7 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
+import { useTranslation } from '../i18n/translations';
 
 const NewsSection = ({ selectedGame }) => {
+  const { t } = useTranslation();
   const [news, setNews] = useState([]);
   const [loading, setLoading] = useState(true);
 
@@ -40,7 +42,7 @@ const NewsSection = ({ selectedGame }) => {
       setNews([
         {
           id: 1,
-          title: 'Neuigkeiten werden geladen...',
+          title: t('newsLoading'),
           description: 'Aktuelle Updates und Patch Notes',
           date: new Date().toLocaleDateString('de-DE'),
           tag: 'Update',
@@ -58,7 +60,7 @@ const NewsSection = ({ selectedGame }) => {
   };
   return (
     <div>
-      <h2 className="text-3xl font-bold mb-6">Neuigkeiten</h2>
+      <h2 className="text-3xl font-bold mb-6">{t('news')}</h2>
       {loading ? (
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           {[1, 2, 3].map((i) => (

@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { toast } from 'react-toastify';
+import { useTranslation } from '../i18n/translations';
 
 const UpdatesPage = ({ selectedGame }) => {
+  const { t } = useTranslation();
   const [updateInfo, setUpdateInfo] = useState(null);
   const [isChecking, setIsChecking] = useState(false);
   const [isDownloading, setIsDownloading] = useState(false);
@@ -21,7 +23,7 @@ const UpdatesPage = ({ selectedGame }) => {
     window.electronAPI?.onUpdateAvailable?.((info) => {
       setUpdateInfo(info);
       if (autoUpdate) {
-        toast.info(`Neue Version verfügbar: ${info.version}`, {
+        toast.info(`${t('newVersionAvailableToast')}: ${info.version}`, {
           autoClose: false,
           onClick: () => startDownload()
         });
@@ -33,13 +35,13 @@ const UpdatesPage = ({ selectedGame }) => {
     });
 
     window.electronAPI?.onUpdateComplete?.((version) => {
-      toast.success(`Update auf ${version} erfolgreich!`);
+      toast.success(`${t('updateSuccessToast')} ${version}`);
       setIsDownloading(false);
       setUpdateInfo(null);
     });
 
     window.electronAPI?.onUpdateError?.((error) => {
-      toast.error(`Update fehlgeschlagen: ${error}`);
+      toast.error(`${t('updateFailedToast')}: ${error}`);
       setIsDownloading(false);
     });
   }, []);
@@ -71,12 +73,12 @@ const UpdatesPage = ({ selectedGame }) => {
       const result = await window.electronAPI.checkForUpdates();
       if (result?.available) {
         setUpdateInfo(result);
-        toast.info(`Neue Version verfügbar: ${result.version}`);
+        toast.info(`${t('newVersionAvailableToast')}: ${result.version}`);
       } else {
-        toast.success('Du hast die neueste Version!');
+        toast.success(t('latestVersionToast'));
       }
     } catch (error) {
-      toast.error('Update-Check fehlgeschlagen');
+      toast.error(t('updateCheckFailed'));
     } finally {
       setIsChecking(false);
     }
@@ -87,7 +89,7 @@ const UpdatesPage = ({ selectedGame }) => {
     
     // Check if download URL exists
     if (!updateInfo.downloadUrl) {
-      toast.error('❌ Kein Download verfügbar! Dieses Release hat keine Installationsdatei.', {
+      toast.error(`❌ ${t('noDownloadAvailable')}`, {
         autoClose: 5000
       });
       return;
@@ -99,7 +101,7 @@ const UpdatesPage = ({ selectedGame }) => {
     try {
       await window.electronAPI.downloadUpdate(updateInfo);
     } catch (error) {
-      toast.error('Download fehlgeschlagen: ' + error.message);
+      toast.error(`${t('downloadFailed')}: ${error.message}`);
       setIsDownloading(false);
     }
   };
@@ -131,9 +133,9 @@ const UpdatesPage = ({ selectedGame }) => {
       <div className="glass-effect rounded-xl p-6">
         <div className="flex items-center justify-between mb-4">
           <div>
-            <h1 className="text-3xl font-bold mb-2">News & Updates</h1>
+            <h1 className="text-3xl font-bold mb-2">{t('news')} & {t('updatesTitle')}</h1>
             <p className="text-gray-400">
-              Aktuelle Version: <span className="text-blue-400 font-mono">{currentVersion}</span>
+              {t('currentVersionLabel')}: <span className="text-blue-400 font-mono">{currentVersion}</span>
             </p>
           </div>
           <div className="text-6xl">
@@ -151,7 +153,7 @@ const UpdatesPage = ({ selectedGame }) => {
                 : 'text-gray-400 hover:text-white'
             }`}
           >
-            🔄 Updates
+            🔄 {t('updatesTitle')}
           </button>
           <button
             onClick={() => setActiveTab('news')}
@@ -161,7 +163,7 @@ const UpdatesPage = ({ selectedGame }) => {
                 : 'text-gray-400 hover:text-white'
             }`}
           >
-            📰 Release Notes
+            📰 {t('releaseNotes')}
           </button>
         </div>
       </div>
@@ -189,10 +191,10 @@ const UpdatesPage = ({ selectedGame }) => {
                   <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
                   <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
                 </svg>
-                <span>Suche...</span>
+                <span>{t('search')}...</span>
               </span>
             ) : (
-              'Jetzt prüfen'
+              t('checkNow')
             )}
           </button>
         </div>
@@ -200,9 +202,9 @@ const UpdatesPage = ({ selectedGame }) => {
         {/* Auto-Update Setting */}
         <div className="flex items-center justify-between p-4 bg-dark-700 rounded-lg">
           <div>
-            <p className="font-medium">Automatische Updates</p>
+            <p className="font-medium">{t('autoUpdateLabel')}</p>
             <p className="text-sm text-gray-400">
-              Updates automatisch im Hintergrund herunterladen
+              {t('autoUpdateDesc')}
             </p>
           </div>
           <button
@@ -241,7 +243,7 @@ const UpdatesPage = ({ selectedGame }) => {
               </p>
               
               <div className="bg-dark-700 rounded-lg p-4 mb-4">
-                <p className="text-sm text-gray-400 mb-2">Veröffentlicht am {formatDate(updateInfo.publishedAt)}</p>
+                <p className="text-sm text-gray-400 mb-2">{t('releaseDate')} {formatDate(updateInfo.publishedAt)}</p>
                 <div className="prose prose-invert max-w-none">
                   <p className="text-sm whitespace-pre-wrap">
                     {updateInfo.body?.substring(0, 300)}
@@ -252,14 +254,14 @@ const UpdatesPage = ({ selectedGame }) => {
 
               {updateInfo.size > 0 && (
                 <p className="text-sm text-gray-400 mb-4">
-                  Download-Größe: {formatBytes(updateInfo.size)}
+                  {t('downloadSize')}: {formatBytes(updateInfo.size)}
                 </p>
               )}
 
               {!updateInfo.downloadUrl && (
                 <div className="bg-yellow-500/10 border border-yellow-500/30 rounded-lg p-4 mb-4">
                   <p className="text-yellow-400 text-sm">
-                    ⚠️ Dieses Release hat keine Installationsdatei. Bitte warte auf ein Release mit Download-Assets.
+                    ⚠️ {t('noInstallFile')}
                   </p>
                 </div>
               )}
@@ -271,19 +273,19 @@ const UpdatesPage = ({ selectedGame }) => {
                     disabled={!updateInfo.downloadUrl}
                     className="px-6 py-3 bg-gradient-to-r from-green-500 to-emerald-600 hover:shadow-lg hover:shadow-green-500/50 rounded-lg font-medium transition-all disabled:opacity-50 disabled:cursor-not-allowed"
                   >
-                    Jetzt herunterladen
+                    {t('downloadNow')}
                   </button>
                   <button
                     onClick={() => setUpdateInfo(null)}
                     className="px-6 py-3 bg-dark-700 hover:bg-dark-600 rounded-lg font-medium transition-colors"
                   >
-                    Später
+                    {t('later')}
                   </button>
                 </div>
               ) : (
                 <div>
                   <div className="flex items-center justify-between mb-2">
-                    <span className="text-sm font-medium">Download-Fortschritt</span>
+                    <span className="text-sm font-medium">{t('downloadProgress')}</span>
                     <span className="text-sm font-mono">{downloadProgress}%</span>
                   </div>
                   <div className="w-full bg-dark-700 rounded-full h-3 overflow-hidden">
@@ -319,7 +321,7 @@ const UpdatesPage = ({ selectedGame }) => {
                 <div>
                   <p className="font-medium font-mono">v{version}</p>
                   <p className="text-sm text-gray-400">
-                    {index === 0 ? 'Aktuelle Version' : 'Vorherige Version'}
+                    {index === 0 ? t('currentVersionOnly') : t('previousVersionLabel')}
                   </p>
                 </div>
               </div>
@@ -404,9 +406,9 @@ const UpdatesPage = ({ selectedGame }) => {
           ) : (
             <div className="glass-effect rounded-xl p-12 text-center">
               <div className="text-6xl mb-4">📰</div>
-              <h3 className="text-xl font-bold mb-2">Keine Release Notes verfügbar</h3>
+              <h3 className="text-xl font-bold mb-2">{t('noReleaseNotes')}</h3>
               <p className="text-gray-400">
-                Release-Informationen werden geladen oder sind noch nicht verfügbar.
+                {t('newsLoading')}
               </p>
             </div>
           )}
