@@ -1,5 +1,9 @@
-// Load environment variables
-require('dotenv').config();
+// Load environment variables - with error handling for production
+try {
+  require('dotenv').config();
+} catch (error) {
+  console.log('⚠️ dotenv not available (production mode)');
+}
 
 const { app, BrowserWindow, ipcMain, shell, autoUpdater } = require('electron');
 const path = require('path');
@@ -7,7 +11,20 @@ const { spawn } = require('child_process');
 const fs = require('fs').promises;
 const https = require('https');
 const fsSync = require('fs');
-const AdmZip = require('adm-zip');
+
+// Lazy load AdmZip when needed
+let AdmZip = null;
+function getAdmZip() {
+  if (!AdmZip) {
+    try {
+      AdmZip = require('adm-zip');
+    } catch (error) {
+      console.error('Failed to load adm-zip:', error);
+      AdmZip = null;
+    }
+  }
+  return AdmZip;
+}
 
 // Game configurations
 const GAME_CONFIGS = {
@@ -90,7 +107,7 @@ function createWindow() {
       nodeIntegration: false,
       contextIsolation: true,
       preload: path.join(__dirname, 'preload.js'),
-      devTools: true
+      devTools: !app.isPackaged // DevTools nur in Development
     },
     icon: path.join(__dirname, '../assets/icon.png.svg'),
     show: false // Don't show until ready
@@ -105,11 +122,19 @@ function createWindow() {
     mainWindow.focus();
   });
 
-  // Load the app - always use localhost in dev
+  // Load the app - use localhost in dev, dist/index.html in production
   const loadURL = async () => {
     try {
-      await mainWindow.loadURL('http://localhost:5173');
-      console.log('URL loaded successfully');
+      if (app.isPackaged) {
+        // Production: load from dist folder
+        const indexPath = path.join(__dirname, '../dist/index.html');
+        await mainWindow.loadFile(indexPath);
+        console.log('Production: Loaded from', indexPath);
+      } else {
+        // Development: load from Vite dev server
+        await mainWindow.loadURL('http://localhost:5173');
+        console.log('Development: Loaded from Vite dev server');
+      }
     } catch (err) {
       console.error('Failed to load URL:', err);
     }
@@ -117,8 +142,10 @@ function createWindow() {
   
   loadURL();
   
-  // Open DevTools
-  mainWindow.webContents.openDevTools();
+  // Open DevTools only in development
+  if (!app.isPackaged) {
+    mainWindow.webContents.openDevTools();
+  }
 
   // Log any errors
   mainWindow.webContents.on('did-fail-load', (event, errorCode, errorDescription) => {
@@ -605,7 +632,11 @@ ipcMain.handle('game:download', async (event, gameId) => {
 
           console.log('✅ Fallback downloaded to', fallbackPath);
           console.log('📦 Extracting fallback zip to', installDir);
-          const zip = new AdmZip(fallbackPath);
+          const AdmZipClass = getAdmZip();
+          if (!AdmZipClass) {
+            throw new Error('adm-zip module not available');
+          }
+          const zip = new AdmZipClass(fallbackPath);
           zip.extractAllTo(installDir, true);
           try { await fs.unlink(fallbackPath); } catch (e) { console.warn('Could not delete fallback zip:', e.message); }
 
@@ -724,7 +755,11 @@ function handleDownload(response, downloadPath, fileSize, installDir, isZipFile,
           mainWindow.webContents.send('download:extracting', true);
         }
         
-        const zip = new AdmZip(downloadPath);
+        const AdmZipClass = getAdmZip();
+        if (!AdmZipClass) {
+          throw new Error('adm-zip module not available');
+        }
+        const zip = new AdmZipClass(downloadPath);
         const zipEntries = zip.getEntries();
         
         console.log('📋 ZIP contains', zipEntries.length, 'files');

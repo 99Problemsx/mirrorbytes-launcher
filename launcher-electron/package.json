@@ -56,6 +56,7 @@
     "files": [
       "dist/**/*",
       "electron/**/*",
+      "src/services/**/*",
       "!**/*.map",
       "!**/node_modules/**"
     ],
@@ -63,11 +64,15 @@
       "target": [
         {
           "target": "nsis",
-          "arch": ["x64"]
+          "arch": [
+            "x64"
+          ]
         },
         {
           "target": "portable",
-          "arch": ["x64"]
+          "arch": [
+            "x64"
+          ]
         }
       ],
       "icon": "build/icon.ico",
@@ -95,13 +100,19 @@
       "artifactName": "${productName}-${version}-Portable.${ext}"
     },
     "mac": {
-      "target": ["dmg", "zip"],
+      "target": [
+        "dmg",
+        "zip"
+      ],
       "icon": "build/icon.icns",
       "category": "public.app-category.games",
       "darkModeSupport": true
     },
     "linux": {
-      "target": ["AppImage", "deb"],
+      "target": [
+        "AppImage",
+        "deb"
+      ],
       "icon": "build/icon.png",
       "category": "Game"
     },
