@@ -197,8 +197,8 @@ const LaunchOptionsPage = () => {
             {/* Smooth Mode */}
             <div className="flex items-center justify-between">
               <div className="flex-1">
-                <label className="font-medium text-lg">Smooth Sprites</label>
-                <p className="text-sm text-gray-400">Glättere Sprite-Darstellung</p>
+                <label className="font-medium text-lg">{t('smoothMode')}</label>
+                <p className="text-sm text-gray-400">{t('smoothModeDesc')}</p>
               </div>
               <label className="relative inline-flex items-center cursor-pointer">
                 <input
@@ -257,18 +257,16 @@ const LaunchOptionsPage = () => {
           </div>
         </div>
 
-        {/* Audio Settings */}
-        <div className="glass-effect rounded-xl p-6 mb-6 border-2 border-gray-700">
-          <h2 className="text-2xl font-bold mb-6 flex items-center space-x-2">
-            <FiVolume2 className="text-theme-accent" />
-            <span>Audio</span>
-          </h2>
-
-          <div className="space-y-6">
+          {/* Audio Section */}
+          <div className="space-y-4">
+            <h2 className="text-2xl font-bold mb-6 flex items-center space-x-2">
+              <FiVolume2 className="text-theme-accent" />
+              <span>{t('audio')}</span>
+            </h2>          <div className="space-y-6">
             {/* Master Volume */}
             <div>
               <div className="flex items-center justify-between mb-2">
-                <label className="font-medium text-lg">Master Lautstärke</label>
+                <label className="font-medium text-lg">{t('masterVolume')}</label>
                 <span className="text-theme-accent font-bold">{options.masterVolume}%</span>
               </div>
               <input
@@ -284,7 +282,7 @@ const LaunchOptionsPage = () => {
             {/* Music Volume */}
             <div>
               <div className="flex items-center justify-between mb-2">
-                <label className="font-medium text-lg">Musik Lautstärke</label>
+                <label className="font-medium text-lg">{t('musicVolume')}</label>
                 <span className="text-theme-accent font-bold">{options.musicVolume}%</span>
               </div>
               <input
@@ -300,7 +298,7 @@ const LaunchOptionsPage = () => {
             {/* SFX Volume */}
             <div>
               <div className="flex items-center justify-between mb-2">
-                <label className="font-medium text-lg">Sound-Effekte Lautstärke</label>
+                <label className="font-medium text-lg">{t('sfxVolume')}</label>
                 <span className="text-theme-accent font-bold">{options.sfxVolume}%</span>
               </div>
               <input
@@ -380,13 +378,13 @@ const LaunchOptionsPage = () => {
         <div className="glass-effect rounded-xl p-6 mb-6 border-2 border-gray-700">
           <h2 className="text-2xl font-bold mb-6 flex items-center space-x-2">
             <FiCpu className="text-theme-accent" />
-            <span>Erweiterte Einstellungen</span>
+            <span>{t('advanced')}</span>
           </h2>
 
           <div>
-            <label className="block font-medium text-lg mb-2">Benutzerdefinierte Argumente</label>
+            <label className="block font-medium text-lg mb-2">{t('customArgs')}</label>
             <p className="text-sm text-gray-400 mb-3">
-              Zusätzliche Kommandozeilen-Argumente (für fortgeschrittene Benutzer)
+              {t('customArgsDesc')}
             </p>
             <input
               type="text"
