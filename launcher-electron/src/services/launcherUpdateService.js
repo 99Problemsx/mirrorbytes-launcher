@@ -8,7 +8,7 @@ export class LauncherUpdateService {
   async checkForLauncherUpdate() {
     try {
       const response = await fetch(
-        'https://api.github.com/repos/99Problemsx/Illusion/releases/latest'
+        'https://api.github.com/repos/99Problemsx/mirrorbytes-launcher/releases/latest'
       );
       
       if (!response.ok) {
