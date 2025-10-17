@@ -10,8 +10,10 @@ import {
 } from 'recharts';
 import statisticsService from '../services/statisticsService';
 import { toast } from 'react-toastify';
+import { useTranslation } from '../i18n/translations';
 
 const StatisticsPage = () => {
+  const { t } = useTranslation();
   const [stats, setStats] = useState(null);
   const [loading, setLoading] = useState(true);
   const [selectedTab, setSelectedTab] = useState('overview');
@@ -26,8 +28,8 @@ const StatisticsPage = () => {
       const data = statisticsService.getStatistics();
       setStats(data);
     } catch (error) {
-      console.error('Fehler beim Laden der Statistiken:', error);
-      toast.error('❌ Fehler beim Laden der Statistiken');
+      console.error('Error loading statistics:', error);
+      toast.error(t('errorLoadingStats'));
     } finally {
       setLoading(false);
     }
@@ -36,16 +38,16 @@ const StatisticsPage = () => {
   const handleExport = () => {
     try {
       statisticsService.exportStatistics();
-      toast.success('📊 Statistiken erfolgreich exportiert!');
+      toast.success(t('statsExportedSuccess'));
     } catch (error) {
-      toast.error('❌ Fehler beim Exportieren');
+      toast.error(t('errorExporting'));
     }
   };
 
   const handleReset = () => {
     if (statisticsService.resetStatistics()) {
       loadStatistics();
-      toast.success('🔄 Statistiken zurückgesetzt');
+      toast.success(t('statsReset'));
     }
   };
 
@@ -84,10 +86,10 @@ const StatisticsPage = () => {
       >
         <div>
           <h1 className="text-3xl font-bold bg-gradient-to-r from-purple-400 to-pink-600 bg-clip-text text-transparent">
-            📊 Statistiken
+            {t('statisticsTitle')}
           </h1>
           <p className="text-gray-400 mt-2">
-            Detaillierte Einblicke in deine Launcher-Nutzung
+            {t('statisticsDesc')}
           </p>
         </div>
         
@@ -99,7 +101,7 @@ const StatisticsPage = () => {
             className="px-4 py-2 bg-gradient-to-r from-purple-600 to-pink-600 rounded-lg flex items-center gap-2 hover:shadow-lg hover:shadow-purple-500/50 transition-all"
           >
             <FiRefreshCw className="w-4 h-4" />
-            Aktualisieren
+            {t('checkNow')}
           </motion.button>
           
           <motion.button
@@ -109,7 +111,7 @@ const StatisticsPage = () => {
             className="px-4 py-2 bg-gradient-to-r from-green-600 to-emerald-600 rounded-lg flex items-center gap-2 hover:shadow-lg hover:shadow-green-500/50 transition-all"
           >
             <FiDownload className="w-4 h-4" />
-            Export
+            {t('exportButton')}
           </motion.button>
         </div>
       </motion.div>
@@ -117,10 +119,10 @@ const StatisticsPage = () => {
       {/* Tabs */}
       <div className="flex gap-2 overflow-x-auto pb-2">
         {[
-          { id: 'overview', label: 'Übersicht', icon: FiActivity },
+          { id: 'overview', label: t('overviewTab'), icon: FiActivity },
           { id: 'charts', label: 'Charts', icon: FiBarChart2 },
           { id: 'features', label: 'Features', icon: FiPieChart },
-          { id: 'sessions', label: 'Sessions', icon: FiClock }
+          { id: 'sessions', label: t('sessionsTab'), icon: FiClock }
         ].map((tab) => (
           <motion.button
             key={tab.id}
@@ -149,10 +151,10 @@ const StatisticsPage = () => {
           >
             <div className="flex items-center gap-3 mb-2">
               <FiTarget className="w-6 h-6 text-purple-400" />
-              <h3 className="text-lg font-semibold">Gesamt Launches</h3>
+              <h3 className="text-lg font-semibold">{t('totalLaunches')}</h3>
             </div>
             <p className="text-3xl font-bold text-purple-400">{stats.totalLaunches}</p>
-            <p className="text-sm text-gray-400 mt-1">Diese Woche: {stats.launchesThisWeek}</p>
+            <p className="text-sm text-gray-400 mt-1">{t('thisWeek')}: {stats.launchesThisWeek}</p>
           </motion.div>
 
           <motion.div
@@ -163,10 +165,10 @@ const StatisticsPage = () => {
           >
             <div className="flex items-center gap-3 mb-2">
               <FiClock className="w-6 h-6 text-blue-400" />
-              <h3 className="text-lg font-semibold">Gesamtzeit</h3>
+              <h3 className="text-lg font-semibold">{t('totalTime')}</h3>
             </div>
             <p className="text-3xl font-bold text-blue-400">{formatTime(stats.totalPlaytime)}</p>
-            <p className="text-sm text-gray-400 mt-1">Ø Session: {formatTime(stats.averageSessionTime)}</p>
+            <p className="text-sm text-gray-400 mt-1">{t('avgSessionLength')}: {formatTime(stats.averageSessionTime)}</p>
           </motion.div>
 
           <motion.div
@@ -212,7 +214,7 @@ const StatisticsPage = () => {
           >
             <h3 className="text-xl font-semibold mb-4 flex items-center gap-2">
               <FiTrendingUp className="text-purple-400" />
-              Launches der letzten 7 Tage
+              {t('launchTrend')}
             </h3>
             <ResponsiveContainer width="100%" height={300}>
               <LineChart data={last7Days}>
@@ -224,7 +226,7 @@ const StatisticsPage = () => {
                   labelStyle={{ color: '#f3f4f6' }}
                 />
                 <Legend />
-                <Line type="monotone" dataKey="launches" stroke="#8b5cf6" strokeWidth={2} name="Launches" />
+                <Line type="monotone" dataKey="launches" stroke="#8b5cf6" strokeWidth={2} name={t('launches')} />
               </LineChart>
             </ResponsiveContainer>
           </motion.div>
@@ -238,7 +240,7 @@ const StatisticsPage = () => {
           >
             <h3 className="text-xl font-semibold mb-4 flex items-center gap-2">
               <FiActivity className="text-blue-400" />
-              Aktivität über den Tag
+              {t('peakTimes')}
             </h3>
             <ResponsiveContainer width="100%" height={300}>
               <BarChart data={peakTimes}>
@@ -249,7 +251,7 @@ const StatisticsPage = () => {
                   contentStyle={{ backgroundColor: '#1f2937', border: '1px solid #374151', borderRadius: '8px' }}
                   labelStyle={{ color: '#f3f4f6' }}
                 />
-                <Bar dataKey="launches" fill="#3b82f6" name="Launches" />
+                <Bar dataKey="launches" fill="#3b82f6" name={t('launches')} />
               </BarChart>
             </ResponsiveContainer>
           </motion.div>
@@ -265,7 +267,7 @@ const StatisticsPage = () => {
         >
           <h3 className="text-xl font-semibold mb-4 flex items-center gap-2">
             <FiPieChart className="text-pink-400" />
-            Feature-Nutzung
+            {t('featureUsage')}
           </h3>
           
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
@@ -316,12 +318,12 @@ const StatisticsPage = () => {
         >
           <h3 className="text-xl font-semibold mb-4 flex items-center gap-2">
             <FiClock className="text-green-400" />
-            Session-Historie (Letzte 30)
+            {t('sessionsTab')} ({t('last30')})
           </h3>
           
           <div className="space-y-2 max-h-96 overflow-y-auto">
             {stats.sessionsHistory.length === 0 ? (
-              <p className="text-gray-400 text-center py-8">Noch keine Sessions aufgezeichnet</p>
+              <p className="text-gray-400 text-center py-8">{t('noSessionsYet')}</p>
             ) : (
               stats.sessionsHistory.map((session, index) => (
                 <div
@@ -334,14 +336,14 @@ const StatisticsPage = () => {
                     </p>
                     <p className="text-sm text-gray-400">
                       {session.features.length > 0 
-                        ? `Features: ${session.features.join(', ')}`
-                        : 'Keine Features genutzt'
+                        ? `${t('features')}: ${session.features.join(', ')}`
+                        : t('noFeaturesUsed')
                       }
                     </p>
                   </div>
                   <div className="text-right">
                     <p className="font-semibold text-purple-400">{formatTime(session.duration)}</p>
-                    <p className="text-sm text-gray-400">{session.launches} Launches</p>
+                    <p className="text-sm text-gray-400">{session.launches} {t('launchesCount')}</p>
                   </div>
                 </div>
               ))
