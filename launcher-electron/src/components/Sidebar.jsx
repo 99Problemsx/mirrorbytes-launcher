@@ -19,7 +19,7 @@ const Sidebar = ({ games, selectedGame, onSelectGame, activeSection, onSectionCh
   ];
 
   return (
-    <aside className="w-20 bg-dark-800/50 backdrop-blur-md border-r border-white/5 flex flex-col items-center py-6 relative z-20 overflow-y-auto">
+    <aside className="w-20 bg-dark-800/50 backdrop-blur-md border-r border-white/5 flex flex-col items-center py-6 relative z-20 overflow-y-auto overflow-x-hidden">
       {/* Animated gradient overlay */}
       <div 
         className="absolute inset-0 opacity-50 pointer-events-none"
@@ -30,7 +30,8 @@ const Sidebar = ({ games, selectedGame, onSelectGame, activeSection, onSectionCh
       ></div>
       
       {/* Menu Items */}
-      <div className="flex-1 flex flex-col items-center space-y-2 w-full px-2">{menuItems.map((item, index) => {
+      <div className="flex-1 flex flex-col items-center space-y-2 w-full px-2">
+        {menuItems.map((item, index) => {
           const Icon = item.icon;
           const isActive = activeSection === item.id;
           
@@ -109,45 +110,6 @@ const Sidebar = ({ games, selectedGame, onSelectGame, activeSection, onSectionCh
             </motion.button>
           );
         })}
-      </div>
-
-      {/* Games Icons */}
-      <div className="border-t border-white/5 pt-4 space-y-2">
-        {games.map((game, index) => (
-          <motion.button
-            key={game.id}
-            initial={{ y: 50, opacity: 0 }}
-            animate={{ y: 0, opacity: 1 }}
-            transition={{ delay: 0.3 + index * 0.1 }}
-            whileHover={{ scale: 1.15, rotate: -5 }}
-            whileTap={{ scale: 0.9 }}
-            onClick={() => {
-              onSelectGame(game);
-              onSectionChange('home');
-            }}
-            className={`w-12 h-12 rounded-xl overflow-hidden border-2 transition-all relative ${
-              selectedGame.id === game.id
-                ? 'border-red-500 shadow-lg shadow-red-500/50 glow-effect'
-                : 'border-transparent hover:border-white/20'
-            }`}
-          >
-            <img
-              src={game.image}
-              alt={game.name}
-              className="w-full h-full object-cover"
-              onError={(e) => {
-                e.target.src = 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="48" height="48"%3E%3Crect fill="%23242424" width="48" height="48"/%3E%3Ctext fill="%23666" font-family="sans-serif" font-size="24" x="50%25" y="50%25" text-anchor="middle" dominant-baseline="middle"%3EP%3C/text%3E%3C/svg%3E';
-              }}
-            />
-            {selectedGame.id === game.id && (
-              <motion.div
-                className="absolute inset-0 bg-gradient-to-br from-red-500/20 to-purple-600/20"
-                animate={{ opacity: [0.3, 0.6, 0.3] }}
-                transition={{ duration: 2, repeat: Infinity }}
-              />
-            )}
-          </motion.button>
-        ))}
       </div>
     </aside>
   );

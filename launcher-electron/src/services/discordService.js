@@ -58,21 +58,36 @@ class DiscordService {
   /**
    * Setze Activity wenn Launcher offen ist
    */
-  setLauncherActivity() {
+  setLauncherActivity(selectedGame = null) {
     if (!this.isConnected) return;
 
+    const state = selectedGame 
+      ? `Schaut sich ${selectedGame.name} an`
+      : 'Bereit zum Spielen';
+
     this.currentActivity = {
-      details: 'Im Launcher',
-      state: 'Bereit zum Spielen',
+      details: 'Im Mirrorbytes Studio',
+      state: state,
       startTimestamp: this.startTimestamp,
       largeImageKey: 'mirrorbytes_logo',
-      largeImageText: 'Pokémon Mirrorbytes',
-      smallImageKey: 'launcher_icon',
-      smallImageText: 'Launcher',
+      largeImageText: 'Mirrorbytes Studio',
+      smallImageKey: selectedGame ? this.getGameIcon(selectedGame.id) : 'launcher_icon',
+      smallImageText: selectedGame ? selectedGame.name : 'Launcher',
       instance: false,
     };
 
     this.updateActivity();
+  }
+
+  /**
+   * Gibt das passende Icon für ein Spiel zurück
+   */
+  getGameIcon(gameId) {
+    const icons = {
+      'illusion': 'illusion_icon',
+      'zorua': 'zorua_icon'
+    };
+    return icons[gameId] || 'game_icon';
   }
 
   /**
@@ -83,31 +98,46 @@ class DiscordService {
 
     const {
       location = 'Unterwegs',
+      map = null,
       playtime = '0h 0m',
       badges = 0,
       partySize = 0,
-      partyMax = 6
+      partyMax = 6,
+      playerName = null
     } = gameInfo;
 
     const gameName = selectedGame.name || 'Pokémon Game';
+    const gameId = selectedGame.id || 'game';
     const repoUrl = `https://github.com/99Problemsx/${selectedGame.repo}`;
+
+    // Formatiere die Location-Anzeige
+    let stateText = location;
+    if (map) {
+      stateText = `${location} - ${map}`;
+    }
+    if (badges > 0) {
+      stateText += ` • ${badges} Orden`;
+    }
+    if (playerName) {
+      stateText = `${playerName} in ${stateText}`;
+    }
 
     this.currentActivity = {
       details: `Spielt ${gameName}`,
-      state: location,
+      state: stateText,
       startTimestamp: this.startTimestamp,
-      largeImageKey: 'mirrorbytes_logo',
+      largeImageKey: this.getGameIcon(gameId),
       largeImageText: gameName,
-      smallImageKey: 'playing_icon',
-      smallImageText: `${playtime} gespielt`,
+      smallImageKey: map ? `map_${map.toLowerCase().replace(/\s+/g, '_')}` : 'playing_icon',
+      smallImageText: map || `${playtime} gespielt`,
       instance: false,
       buttons: [
         {
-          label: 'Game Info',
+          label: '🎮 Game Info',
           url: repoUrl
         },
         {
-          label: 'Discord Server',
+          label: '💬 Discord Server',
           url: 'https://discord.gg/your-server' // TODO: Discord Link
         }
       ]
@@ -128,61 +158,106 @@ class DiscordService {
   setCustomActivity(type, data = {}) {
     if (!this.isConnected) return;
 
+    const gameId = data.gameId || 'game';
+    const gameName = data.gameName || 'Pokémon Game';
+
     switch (type) {
       case 'battle':
         this.currentActivity = {
-          details: 'Im Kampf',
-          state: data.opponent || 'Trainer Kampf',
+          details: `${gameName} - Im Kampf`,
+          state: data.opponent ? `vs ${data.opponent}` : 'Trainer Kampf',
           startTimestamp: Date.now(),
-          largeImageKey: 'battle_icon',
-          largeImageText: 'Pokémon Kampf',
+          largeImageKey: this.getGameIcon(gameId),
+          largeImageText: gameName,
           smallImageKey: data.pokemon || 'pokeball',
           smallImageText: data.pokemonName || 'Im Kampf',
         };
+        if (data.location) {
+          this.currentActivity.state += ` • ${data.location}`;
+        }
         break;
 
       case 'training':
         this.currentActivity = {
-          details: 'Training',
+          details: `${gameName} - Training`,
           state: data.location || 'Trainiert Pokémon',
           startTimestamp: this.startTimestamp,
-          largeImageKey: 'training_icon',
-          largeImageText: 'Training',
+          largeImageKey: this.getGameIcon(gameId),
+          largeImageText: gameName,
+          smallImageKey: 'training_icon',
+          smallImageText: 'Training',
         };
         break;
 
       case 'trading':
         this.currentActivity = {
-          details: 'Tauscht Pokémon',
+          details: `${gameName} - Tauscht`,
           state: data.partner || 'Mit Freund',
           startTimestamp: Date.now(),
-          largeImageKey: 'trade_icon',
-          largeImageText: 'Pokémon Tausch',
+          largeImageKey: this.getGameIcon(gameId),
+          largeImageText: gameName,
+          smallImageKey: 'trade_icon',
+          smallImageText: 'Pokémon Tausch',
         };
         break;
 
       case 'exploring':
+        const exploreState = data.map 
+          ? `${data.location || 'Erkundet'} - ${data.map}`
+          : data.location || 'Neue Orte';
+        
         this.currentActivity = {
-          details: 'Erkundet',
-          state: data.location || 'Neue Orte',
+          details: `${gameName} - Erkundet`,
+          state: exploreState,
           startTimestamp: this.startTimestamp,
-          largeImageKey: 'explore_icon',
-          largeImageText: 'Exploration',
+          largeImageKey: this.getGameIcon(gameId),
+          largeImageText: gameName,
+          smallImageKey: data.map ? `map_${data.map.toLowerCase().replace(/\s+/g, '_')}` : 'explore_icon',
+          smallImageText: data.map || 'Exploration',
         };
         break;
 
       case 'menu':
         this.currentActivity = {
-          details: 'Im Menü',
+          details: `${gameName} - Im Menü`,
           state: data.section || 'Schaut sich um',
           startTimestamp: this.startTimestamp,
-          largeImageKey: 'menu_icon',
-          largeImageText: 'Menü',
+          largeImageKey: this.getGameIcon(gameId),
+          largeImageText: gameName,
+          smallImageKey: 'menu_icon',
+          smallImageText: 'Menü',
+        };
+        break;
+
+      case 'gym':
+        this.currentActivity = {
+          details: `${gameName} - Arena Kampf`,
+          state: data.gymLeader ? `vs ${data.gymLeader}` : 'Arena Herausforderung',
+          startTimestamp: Date.now(),
+          largeImageKey: this.getGameIcon(gameId),
+          largeImageText: gameName,
+          smallImageKey: 'gym_icon',
+          smallImageText: data.city || 'Arena',
+        };
+        if (data.badges) {
+          this.currentActivity.state += ` • ${data.badges} Orden`;
+        }
+        break;
+
+      case 'catching':
+        this.currentActivity = {
+          details: `${gameName} - Fängt Pokémon`,
+          state: data.location || 'Auf der Jagd',
+          startTimestamp: this.startTimestamp,
+          largeImageKey: this.getGameIcon(gameId),
+          largeImageText: gameName,
+          smallImageKey: 'pokeball',
+          smallImageText: data.pokemon || 'Fängt Pokémon',
         };
         break;
 
       default:
-        this.setLauncherActivity();
+        this.setLauncherActivity(data.selectedGame);
     }
 
     this.updateActivity();

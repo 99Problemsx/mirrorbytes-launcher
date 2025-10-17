@@ -264,7 +264,14 @@ function App() {
               >
                 {/* Hero Section */}
                 <div className="flex-1 p-8 overflow-y-auto scrollbar-hide">
-                  <GameCard game={selectedGame} />
+                  <h1 className="text-4xl font-bold mb-6">Deine Spiele</h1>
+                  
+                  {/* Games Grid */}
+                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+                    {GAMES.map((game) => (
+                      <GameCard key={game.id} game={game} />
+                    ))}
+                  </div>
                   
                   {/* News Section */}
                   <div className="mt-8">

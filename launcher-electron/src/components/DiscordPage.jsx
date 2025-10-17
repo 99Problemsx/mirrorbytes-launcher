@@ -40,12 +40,18 @@ const DiscordPage = ({ selectedGame }) => {
 
   const testActivity = async (type) => {
     try {
-      await window.electronAPI.setDiscordActivity(type, {
-        location: 'Test Location',
+      const testData = {
+        location: 'Route 1',
+        map: 'Kanto',
         pokemon: 'pikachu',
-        pokemonName: 'Pikachu'
-      });
-      toast.success(`Test Activity: ${type}`);
+        pokemonName: 'Pikachu',
+        opponent: 'Trainer Markus',
+        badges: 3,
+        playtime: '5h 30m'
+      };
+
+      await window.electronAPI.setDiscordActivity(type, testData, selectedGame);
+      toast.success(`${selectedGame.name} Activity: ${type}`);
     } catch (error) {
       toast.error('Fehler: ' + error.message);
     }
@@ -147,14 +153,24 @@ const DiscordPage = ({ selectedGame }) => {
               🎮
             </div>
             <div className="flex-1">
-              <p className="font-bold text-white mb-1">{selectedGame.name}</p>
+              <p className="font-bold text-white mb-1">Mirrorbytes Studio</p>
               {isEnabled && showDetails ? (
                 <>
                   <p className="text-sm text-gray-300">Spielt {selectedGame.name}</p>
-                  <p className="text-sm text-gray-400">Route 1 - Unterwegs</p>
+                  <p className="text-sm text-gray-400">Route 1 - Kanto • 3 Orden</p>
                   <div className="flex items-center space-x-2 mt-2">
-                    <div className="w-6 h-6 bg-yellow-500 rounded-full" />
-                    <p className="text-xs text-gray-400">Mit Pikachu</p>
+                    <div className="w-6 h-6 bg-yellow-500 rounded-full flex items-center justify-center text-xs">
+                      ⚡
+                    </div>
+                    <p className="text-xs text-gray-400">Kanto</p>
+                  </div>
+                  <div className="mt-2 flex space-x-2">
+                    <button className="text-xs bg-[#5865F2] hover:bg-[#4752C4] px-3 py-1 rounded transition-colors">
+                      🎮 Game Info
+                    </button>
+                    <button className="text-xs bg-[#5865F2] hover:bg-[#4752C4] px-3 py-1 rounded transition-colors">
+                      💬 Discord Server
+                    </button>
                   </div>
                 </>
               ) : (
@@ -162,6 +178,12 @@ const DiscordPage = ({ selectedGame }) => {
               )}
             </div>
           </div>
+        </div>
+
+        <div className="mt-4 p-3 bg-yellow-500/10 border border-yellow-500/30 rounded-lg">
+          <p className="text-sm text-yellow-200">
+            💡 <strong>Tipp:</strong> Die Map wird automatisch erkannt und angezeigt wenn du im Spiel bist!
+          </p>
         </div>
       </div>
 
@@ -217,6 +239,30 @@ const DiscordPage = ({ selectedGame }) => {
             >
               <span className="text-2xl mb-2 block">📋</span>
               <p className="text-sm font-medium">Menü</p>
+            </button>
+            
+            <button
+              onClick={() => testActivity('gym')}
+              className="p-4 bg-dark-700 hover:bg-dark-600 rounded-lg transition-colors"
+            >
+              <span className="text-2xl mb-2 block">🏛️</span>
+              <p className="text-sm font-medium">Arena</p>
+            </button>
+            
+            <button
+              onClick={() => testActivity('catching')}
+              className="p-4 bg-dark-700 hover:bg-dark-600 rounded-lg transition-colors"
+            >
+              <span className="text-2xl mb-2 block">⚾</span>
+              <p className="text-sm font-medium">Fangen</p>
+            </button>
+            
+            <button
+              onClick={() => testActivity('game')}
+              className="p-4 bg-dark-700 hover:bg-dark-600 rounded-lg transition-colors col-span-2 md:col-span-1"
+            >
+              <span className="text-2xl mb-2 block">🎮</span>
+              <p className="text-sm font-medium">Im Spiel (mit Map)</p>
             </button>
           </div>
         </div>

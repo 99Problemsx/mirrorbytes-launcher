@@ -705,15 +705,23 @@ ipcMain.handle('discord:disable', async () => {
   }
 });
 
-ipcMain.handle('discord:set-activity', async (event, type, data) => {
+ipcMain.handle('discord:set-activity', async (event, type, data, selectedGame = null) => {
   try {
     if (!discordService || !discordService.isConnected) {
       throw new Error('Discord not connected');
     }
     
-    if (type === 'game') {
-      discordService.setGameActivity(data);
+    if (type === 'launcher') {
+      discordService.setLauncherActivity(selectedGame);
+    } else if (type === 'game') {
+      discordService.setGameActivity(data, selectedGame);
     } else {
+      // Füge selectedGame-Info zu data hinzu
+      if (selectedGame) {
+        data.gameId = selectedGame.id;
+        data.gameName = selectedGame.name;
+        data.selectedGame = selectedGame;
+      }
       discordService.setCustomActivity(type, data);
     }
     
