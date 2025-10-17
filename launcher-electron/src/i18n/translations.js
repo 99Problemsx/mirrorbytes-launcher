@@ -391,6 +391,12 @@ export const translations = {
     autoBackupCreated: 'Während eines Updates wird automatisch ein Backup erstellt',
     autoBackupName: 'Automatisches Backup',
     updatesFromGithub: 'Updates werden von GitHub Releases heruntergeladen.',
+    checkForUpdates: 'Nach Updates suchen',
+    checkForUpdatesDesc: 'Überprüfe ob eine neue Version verfügbar ist',
+    autoUpdateLabel: 'Automatische Updates',
+    autoUpdateDesc: 'Lädt Updates automatisch im Hintergrund herunter',
+    updateHistory: 'Update-Verlauf',
+    newVersionAvailableTitle: 'Neue Version verfügbar!',
     
     // Errors & Messages
     error: 'Fehler',
@@ -812,6 +818,12 @@ export const translations = {
     autoBackupCreated: 'Automatic backup created during update',
     autoBackupName: 'Automatic Backup',
     updatesFromGithub: 'Updates are downloaded from GitHub Releases.',
+    checkForUpdates: 'Check for Updates',
+    checkForUpdatesDesc: 'Check if a new version is available',
+    autoUpdateLabel: 'Automatic Updates',
+    autoUpdateDesc: 'Downloads updates automatically in the background',
+    updateHistory: 'Update History',
+    newVersionAvailableTitle: 'New Version Available!',
     
     // Errors & Messages
     error: 'Error',

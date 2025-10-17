@@ -175,9 +175,9 @@ const UpdatesPage = ({ selectedGame }) => {
       <div className="glass-effect rounded-xl p-6">
         <div className="flex items-center justify-between mb-4">
           <div>
-            <h2 className="text-xl font-bold mb-1">Nach Updates suchen</h2>
+            <h2 className="text-xl font-bold mb-1">{t('checkForUpdates')}</h2>
             <p className="text-sm text-gray-400">
-              Überprüfe ob eine neue Version verfügbar ist
+              {t('checkForUpdatesDesc')}
             </p>
           </div>
           <button
@@ -236,7 +236,7 @@ const UpdatesPage = ({ selectedGame }) => {
             <div className="text-5xl">✨</div>
             <div className="flex-1">
               <h2 className="text-2xl font-bold text-green-400 mb-2">
-                Neue Version verfügbar!
+                {t('newVersionAvailableTitle')}
               </h2>
               <p className="text-lg mb-4">
                 Version {updateInfo.version} - {updateInfo.name}
@@ -308,7 +308,7 @@ const UpdatesPage = ({ selectedGame }) => {
 
       {/* Update History */}
       <div className="glass-effect rounded-xl p-6">
-        <h2 className="text-xl font-bold mb-4">Update-Verlauf</h2>
+        <h2 className="text-xl font-bold mb-4">{t('updateHistory')}</h2>
         
         <div className="space-y-3">
           {['0.2.1', '0.2.0', '0.1.0'].map((version, index) => (
