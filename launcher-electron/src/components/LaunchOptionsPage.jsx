@@ -91,7 +91,7 @@ const LaunchOptionsPage = () => {
   };
 
   const resolutionOptions = [
-    { value: 'auto', label: 'Automatisch' },
+    { value: 'auto', label: t('autoResolution') },
     { value: '1920x1080', label: '1920x1080 (Full HD)' },
     { value: '1280x720', label: '1280x720 (HD)' },
     { value: '1600x900', label: '1600x900' },
@@ -142,7 +142,7 @@ const LaunchOptionsPage = () => {
         <div className="glass-effect rounded-xl p-6 mb-6 border-2 border-gray-700">
           <h2 className="text-2xl font-bold mb-6 flex items-center space-x-2">
             <FiMonitor className="text-theme-accent" />
-            <span>Grafik-Einstellungen</span>
+            <span>{t('graphics')}</span>
           </h2>
 
           <div className="space-y-6">
@@ -165,7 +165,7 @@ const LaunchOptionsPage = () => {
 
             {/* Resolution */}
             <div>
-              <label className="block font-medium text-lg mb-2">Auflösung</label>
+              <label className="block font-medium text-lg mb-2">{t('resolution')}</label>
               <select
                 value={options.resolution}
                 onChange={(e) => handleOptionChange('resolution', e.target.value)}
@@ -180,8 +180,8 @@ const LaunchOptionsPage = () => {
             {/* VSync */}
             <div className="flex items-center justify-between">
               <div className="flex-1">
-                <label className="font-medium text-lg">VSync</label>
-                <p className="text-sm text-gray-400">Vertikale Synchronisation (reduziert Tearing)</p>
+                <label className="font-medium text-lg">{t('vsync')}</label>
+                <p className="text-sm text-gray-400">{t('vsyncDesc')}</p>
               </div>
               <label className="relative inline-flex items-center cursor-pointer">
                 <input
@@ -217,7 +217,7 @@ const LaunchOptionsPage = () => {
         <div className="glass-effect rounded-xl p-6 mb-6 border-2 border-gray-700">
           <h2 className="text-2xl font-bold mb-6 flex items-center space-x-2">
             <FiZap className="text-theme-accent" />
-            <span>Performance</span>
+            <span>{t('performance')}</span>
           </h2>
 
           <div className="space-y-6">
@@ -241,8 +241,8 @@ const LaunchOptionsPage = () => {
             {/* Fast Battles */}
             <div className="flex items-center justify-between">
               <div className="flex-1">
-                <label className="font-medium text-lg">Schnelle Kämpfe</label>
-                <p className="text-sm text-gray-400">Reduziert Kampf-Animationen</p>
+                <label className="font-medium text-lg">{t('fastBattles')}</label>
+                <p className="text-sm text-gray-400">{t('fastBattlesDesc')}</p>
               </div>
               <label className="relative inline-flex items-center cursor-pointer">
                 <input
@@ -326,8 +326,8 @@ const LaunchOptionsPage = () => {
             {/* Debug Mode */}
             <div className="flex items-center justify-between">
               <div className="flex-1">
-                <label className="font-medium text-lg text-red-400">Debug-Modus</label>
-                <p className="text-sm text-gray-400">Aktiviert Debug-Features (nur für Entwickler)</p>
+                <label className="font-medium text-lg text-red-400">{t('debugMode')}</label>
+                <p className="text-sm text-gray-400">{t('debugModeDesc')}</p>
               </div>
               <label className="relative inline-flex items-center cursor-pointer">
                 <input
@@ -343,8 +343,8 @@ const LaunchOptionsPage = () => {
             {/* Show FPS */}
             <div className="flex items-center justify-between">
               <div className="flex-1">
-                <label className="font-medium text-lg">FPS anzeigen</label>
-                <p className="text-sm text-gray-400">Zeigt Framerate im Spiel an</p>
+                <label className="font-medium text-lg">{t('showFPS')}</label>
+                <p className="text-sm text-gray-400">{t('showFPS')}</p>
               </div>
               <label className="relative inline-flex items-center cursor-pointer">
                 <input
@@ -360,8 +360,8 @@ const LaunchOptionsPage = () => {
             {/* Console */}
             <div className="flex items-center justify-between">
               <div className="flex-1">
-                <label className="font-medium text-lg">Konsole aktivieren</label>
-                <p className="text-sm text-gray-400">Öffnet Debug-Konsole beim Start</p>
+                <label className="font-medium text-lg">{t('enableConsole')}</label>
+                <p className="text-sm text-gray-400">{t('enableConsole')}</p>
               </div>
               <label className="relative inline-flex items-center cursor-pointer">
                 <input
