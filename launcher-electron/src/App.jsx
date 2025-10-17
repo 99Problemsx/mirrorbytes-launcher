@@ -595,7 +595,7 @@ function App() {
                 transition={{ duration: 0.3 }}
                 className="h-full"
               >
-                <AchievementsPage selectedGame={selectedGame} />
+                <AchievementsPage />
               </motion.div>
             )}
 
