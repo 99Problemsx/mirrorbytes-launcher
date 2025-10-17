@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { FiAward, FiStar, FiLock, FiGift } from 'react-icons/fi';
 import { toast } from 'react-toastify';
+import { useTranslation } from '../i18n/translations';
 
 // Games list
 const GAMES = [
@@ -45,67 +46,68 @@ const MYSTERY_CODES = {
   }
 };
 
-const ACHIEVEMENTS = [
+// Function to get translated achievements
+const getAchievements = (t) => [
   {
     id: 'first_launch',
-    name: 'Erstes Abenteuer',
-    description: 'Starte das Spiel zum ersten Mal',
+    name: t('firstAdventure'),
+    description: t('firstAdventureDesc'),
     icon: '🎮',
     rarity: 'common',
     points: 10,
   },
   {
     id: 'play_10h',
-    name: 'Pokémon Trainer',
-    description: 'Spiele 10 Stunden',
+    name: t('pokemonTrainer'),
+    description: t('pokemonTrainerDesc'),
     icon: '⏱️',
     rarity: 'uncommon',
     points: 25,
   },
   {
     id: 'play_50h',
-    name: 'Pokémon Meister',
-    description: 'Spiele 50 Stunden',
+    name: t('pokemonMaster'),
+    description: t('pokemonMasterDesc'),
     icon: '🏆',
     rarity: 'rare',
     points: 50,
   },
   {
     id: 'play_100h',
-    name: 'Pokémon Champion',
-    description: 'Spiele 100 Stunden',
+    name: t('pokemonChampion'),
+    description: t('pokemonChampionDesc'),
     icon: '👑',
     rarity: 'epic',
     points: 100,
   },
   {
     id: 'early_bird',
-    name: 'Frühaufsteher',
-    description: 'Spiele vor 6 Uhr morgens',
+    name: t('earlyBird'),
+    description: t('earlyBirdDesc'),
     icon: '🌅',
     rarity: 'rare',
     points: 30,
   },
   {
     id: 'night_owl',
-    name: 'Nachteule',
-    description: 'Spiele nach Mitternacht',
+    name: t('nightOwl'),
+    description: t('nightOwlDesc'),
     icon: '🦉',
     rarity: 'rare',
     points: 30,
   },
   {
     id: 'daily_streak_7',
-    name: 'Wöchentliche Hingabe',
-    description: 'Spiele 7 Tage in Folge',
+    name: t('weeklyDedication'),
+    description: t('weeklyDedicationDesc'),
     icon: '🔥',
     rarity: 'uncommon',
     points: 40,
   },
   {
     id: 'beta_tester',
-    name: 'Beta Tester',
-    description: 'Nutze die Beta-Version',
+    name: t('betaTester'),
+    description: t('betaTesterDesc'),
     icon: '🧪',
     rarity: 'legendary',
     points: 200,
@@ -121,6 +123,8 @@ const RARITY_COLORS = {
 };
 
 const AchievementsPage = () => {
+  const { t } = useTranslation();
+  const ACHIEVEMENTS = getAchievements(t);
   const [gameData, setGameData] = useState({});
   const [showNotification, setShowNotification] = useState(null);
   const [activeTab, setActiveTab] = useState('achievements'); // 'achievements' or 'rewards'
@@ -128,6 +132,7 @@ const AchievementsPage = () => {
 
   useEffect(() => {
     loadAllGamesData();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const loadAllGamesData = () => {
@@ -172,20 +177,20 @@ const AchievementsPage = () => {
     const game = GAMES.find(g => g.id === gameId);
     
     if (!code) {
-      toast.error('❌ Bitte gib einen Code ein!');
+      toast.error(t('pleaseEnterCode'));
       return;
     }
 
     const currentData = gameData[gameId] || { redeemedCodes: [] };
     
     if (currentData.redeemedCodes.includes(code)) {
-      toast.warning(`⚠️ Dieser Code wurde bereits für ${game.name} eingelöst!`);
+      toast.warning(`${t('codeAlreadyRedeemed')} ${game.name}!`);
       return;
     }
 
     const reward = MYSTERY_CODES[gameId]?.[code];
     if (!reward) {
-      toast.error('❌ Ungültiger Code!');
+      toast.error(t('invalidCode'));
       return;
     }
 
@@ -215,7 +220,7 @@ const AchievementsPage = () => {
     setMysteryCode(prev => ({ ...prev, [gameId]: '' }));
 
     // Success notification
-    toast.success(`🎁 ${reward.name} für ${game.name} eingelöst!\n\nStarte das Spiel um die Belohnungen zu erhalten!`, {
+    toast.success(`🎁 ${reward.name} ${t('rewardRedeemedFor')} ${game.name}!\n\n${t('startGameToReceive')}`, {
       position: 'top-center',
       autoClose: 7000
     });
@@ -248,19 +253,19 @@ const AchievementsPage = () => {
                 {activeTab === 'achievements' ? (
                   <>
                     <FiAward className="text-yellow-400" size={32} />
-                    <span>Belohnungen</span>
+                    <span>{t('achievementsTitle')}</span>
                   </>
                 ) : (
                   <>
                     <FiGift className="text-purple-400" size={32} />
-                    <span>Mystery Gifts</span>
+                    <span>{t('mysteryGiftsTitle')}</span>
                   </>
                 )}
               </h1>
               <p className="text-gray-400">
                 {activeTab === 'achievements' 
-                  ? 'Sammle Achievements und verdiene Punkte!'
-                  : 'Erhalte spezielle Belohnungen und Items!'}
+                  ? t('achievementsDesc')
+                  : t('mysteryGiftsDesc')}
               </p>
             </div>
           </div>
@@ -275,7 +280,7 @@ const AchievementsPage = () => {
                   : 'text-gray-400 hover:text-white'
               }`}
             >
-              🏆 Achievements
+              {t('achievementsTab')}
             </button>
             <button
               onClick={() => setActiveTab('rewards')}
@@ -285,7 +290,7 @@ const AchievementsPage = () => {
                   : 'text-gray-400 hover:text-white'
               }`}
             >
-              🎁 Mystery Gifts
+              {t('mysteryGiftsTab')}
             </button>
           </div>
         </div>
@@ -309,11 +314,11 @@ const AchievementsPage = () => {
                   <div className="flex items-center justify-between mb-4">
                     <div>
                       <h3 className="text-xl font-bold">{progress.unlocked} / {progress.total}</h3>
-                      <p className="text-sm text-gray-400">Achievements</p>
+                      <p className="text-sm text-gray-400">{t('achievementsTitle')}</p>
                     </div>
                     <div className="text-right">
                       <h3 className="text-xl font-bold text-yellow-400">{data.totalPoints}</h3>
-                      <p className="text-sm text-gray-400">Punkte</p>
+                      <p className="text-sm text-gray-400">{t('points')}</p>
                     </div>
                   </div>
 
@@ -387,9 +392,9 @@ const AchievementsPage = () => {
               <div className="flex items-center space-x-4">
                 <div className="text-4xl">{showNotification.icon}</div>
                 <div>
-                  <h3 className="font-bold text-lg mb-1">Achievement freigeschaltet!</h3>
+                  <h3 className="font-bold text-lg mb-1">{t('achievementUnlockedNotif')}</h3>
                   <p className="text-sm text-gray-300">{showNotification.name}</p>
-                  <p className="text-xs text-yellow-400 mt-1">+{showNotification.points} Punkte</p>
+                  <p className="text-xs text-yellow-400 mt-1">+{showNotification.points} {t('points')}</p>
                 </div>
               </div>
             </motion.div>
@@ -410,7 +415,7 @@ const AchievementsPage = () => {
                       {game.name}
                     </h3>
                     <p className="text-gray-400 text-sm">
-                      Löse Codes ein für exklusive Belohnungen!
+                      {t('redeemCodesFor')}
                     </p>
                   </div>
 
@@ -425,14 +430,14 @@ const AchievementsPage = () => {
                           [game.id]: e.target.value.toUpperCase() 
                         }))}
                         onKeyPress={(e) => e.key === 'Enter' && redeemCode(game.id)}
-                        placeholder="Code eingeben..."
+                        placeholder={t('enterCode')}
                         className="flex-1 px-4 py-3 bg-dark-700 border border-gray-600 rounded-lg focus:outline-none focus:border-purple-500 transition-colors uppercase text-sm"
                       />
                       <button 
                         onClick={() => redeemCode(game.id)}
                         className={`px-4 py-3 bg-gradient-to-r from-${game.color}-500 to-${game.color}-600 rounded-lg font-medium hover:shadow-lg transition-all text-sm`}
                       >
-                        Einlösen
+                        {t('redeem')}
                       </button>
                     </div>
                   </div>
@@ -440,7 +445,7 @@ const AchievementsPage = () => {
                   {/* Redeemed Codes */}
                   {data.redeemedCodes.length > 0 && (
                     <div className="mb-6">
-                      <h4 className="font-bold mb-3 text-green-400 text-sm">✅ Eingelöst:</h4>
+                      <h4 className="font-bold mb-3 text-green-400 text-sm">{t('redeemed')}</h4>
                       <div className="space-y-2 max-h-[200px] overflow-y-auto scrollbar-thin">
                         {data.redeemedCodes.map((code) => {
                           const reward = MYSTERY_CODES[game.id]?.[code];
@@ -464,7 +469,7 @@ const AchievementsPage = () => {
                   {/* Info */}
                   <div className="mt-4 p-3 bg-blue-500/10 border border-blue-500/30 rounded-lg">
                     <p className="text-xs text-gray-300">
-                      💡 <strong>Tipp:</strong> Folge uns auf Social Media!
+                      💡 <strong>{t('tipFollowSocial')}</strong>
                     </p>
                   </div>
                 </div>
