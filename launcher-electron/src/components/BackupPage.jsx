@@ -7,13 +7,15 @@ import {
 } from 'react-icons/fi';
 import BackupService from '../services/backupService';
 import { toast } from 'react-toastify';
+import { useTranslation } from '../i18n/translations';
 
 const BackupPage = ({ selectedGame }) => {
+  const { t } = useTranslation();
   const [backupService] = useState(() => {
     try {
       return new BackupService();
     } catch (error) {
-      console.warn('BackupService nicht verfügbar (Dev-Modus):', error);
+      console.warn('BackupService not available (Dev-Mode):', error);
       return null;
     }
   });
