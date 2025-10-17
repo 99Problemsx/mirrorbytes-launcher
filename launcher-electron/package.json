@@ -73,7 +73,11 @@
       "icon": "build/icon.ico",
       "artifactName": "${productName}-${version}-Setup.${ext}",
       "publisherName": "Mirrorbytes Studio",
-      "verifyUpdateCodeSignature": false
+      "verifyUpdateCodeSignature": false,
+      "sign": null,
+      "signingHashAlgorithms": [],
+      "signAndEditExecutable": false,
+      "signDlls": false
     },
     "nsis": {
       "oneClick": false,

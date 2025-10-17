@@ -1,7 +1,7 @@
 // Load environment variables
 require('dotenv').config();
 
-const { app, BrowserWindow, ipcMain, shell } = require('electron');
+const { app, BrowserWindow, ipcMain, shell, autoUpdater } = require('electron');
 const path = require('path');
 const { spawn } = require('child_process');
 const fs = require('fs').promises;
@@ -25,14 +25,50 @@ const GAME_CONFIGS = {
   }
 };
 
-// Import services
-const { getDiscordService } = require('../src/services/discordService');
-const { getAutoUpdateService } = require('../src/services/autoUpdateService');
-const { getMysteryGiftService } = require('../src/services/mysteryGiftService');
-
+// Import services - with error handling for production builds
 let discordService = null;
 let autoUpdateService = null;
 let mysteryGiftService = null;
+
+// Lazy load services when needed
+function getDiscordService() {
+  if (!discordService) {
+    try {
+      const service = require('../src/services/discordService');
+      discordService = service.getDiscordService();
+    } catch (error) {
+      console.error('Failed to load Discord service:', error);
+      discordService = null;
+    }
+  }
+  return discordService;
+}
+
+function getAutoUpdateService(gameId) {
+  if (!autoUpdateService) {
+    try {
+      const service = require('../src/services/autoUpdateService');
+      autoUpdateService = service.getAutoUpdateService(gameId);
+    } catch (error) {
+      console.error('Failed to load Auto Update service:', error);
+      autoUpdateService = null;
+    }
+  }
+  return autoUpdateService;
+}
+
+function getMysteryGiftService() {
+  if (!mysteryGiftService) {
+    try {
+      const service = require('../src/services/mysteryGiftService');
+      mysteryGiftService = service.getMysteryGiftService();
+    } catch (error) {
+      console.error('Failed to load Mystery Gift service:', error);
+      mysteryGiftService = null;
+    }
+  }
+  return mysteryGiftService;
+}
 
 let mainWindow;
 
@@ -129,6 +165,104 @@ function createWindow() {
       return false;
     }
     console.log('✅ Force quit enabled, allowing close');
+  });
+}
+
+// ====================================================================
+// ELECTRON AUTO-UPDATER SETUP
+// ====================================================================
+// Nur für Production Builds (nicht in Dev-Mode)
+if (!app.isPackaged) {
+  console.log('⚠️  Running in DEV mode - AutoUpdater disabled');
+} else {
+  console.log('🔄 Production mode - Setting up AutoUpdater');
+  
+  // GitHub Releases Feed URL
+  const feedURL = `https://github.com/99Problemsx/mirrorbytes-launcher/releases/latest/download`;
+  
+  try {
+    autoUpdater.setFeedURL({
+      provider: 'github',
+      owner: '99Problemsx',
+      repo: 'mirrorbytes-launcher',
+      releaseType: 'release'
+    });
+    
+    console.log('✅ AutoUpdater feed configured');
+    
+    // Check for updates on startup (after 10 seconds)
+    setTimeout(() => {
+      console.log('🔍 Checking for launcher updates...');
+      autoUpdater.checkForUpdates();
+    }, 10000);
+    
+  } catch (error) {
+    console.error('❌ Failed to setup AutoUpdater:', error);
+  }
+
+  // AutoUpdater Events
+  autoUpdater.on('checking-for-update', () => {
+    console.log('🔍 Checking for updates...');
+    if (mainWindow) {
+      mainWindow.webContents.send('launcher-update-status', { 
+        status: 'checking',
+        message: 'Suche nach Launcher-Updates...'
+      });
+    }
+  });
+
+  autoUpdater.on('update-available', (info) => {
+    console.log('✨ Update available!', info);
+    if (mainWindow) {
+      mainWindow.webContents.send('launcher-update-status', { 
+        status: 'available',
+        version: info.version,
+        message: `Launcher-Update verfügbar: v${info.version}`
+      });
+    }
+  });
+
+  autoUpdater.on('update-not-available', (info) => {
+    console.log('✅ Launcher is up to date!', info);
+    if (mainWindow) {
+      mainWindow.webContents.send('launcher-update-status', { 
+        status: 'up-to-date',
+        message: 'Launcher ist aktuell'
+      });
+    }
+  });
+
+  autoUpdater.on('download-progress', (progress) => {
+    console.log(`⬇️  Download progress: ${progress.percent.toFixed(2)}%`);
+    if (mainWindow) {
+      mainWindow.webContents.send('launcher-update-progress', {
+        percent: progress.percent,
+        transferred: progress.transferred,
+        total: progress.total,
+        speed: progress.bytesPerSecond
+      });
+    }
+  });
+
+  autoUpdater.on('update-downloaded', (info) => {
+    console.log('✅ Update downloaded! Will install on restart.', info);
+    if (mainWindow) {
+      mainWindow.webContents.send('launcher-update-status', { 
+        status: 'downloaded',
+        version: info.version,
+        message: 'Update heruntergeladen - Neu starten zum Installieren'
+      });
+    }
+  });
+
+  autoUpdater.on('error', (error) => {
+    console.error('❌ AutoUpdater error:', error);
+    if (mainWindow) {
+      mainWindow.webContents.send('launcher-update-status', { 
+        status: 'error',
+        message: 'Update-Fehler: ' + error.message
+      });
+    }
   });
 }
 
@@ -765,6 +899,44 @@ ipcMain.handle('mysterygift:check-claimed', async (event, code) => {
 // AUTO-UPDATE HANDLERS
 // ============================================================================
 
+// Launcher Auto-Update (Electron AutoUpdater)
+ipcMain.handle('launcher:check-update', async () => {
+  try {
+    if (!app.isPackaged) {
+      return { 
+        success: false, 
+        message: 'Auto-Update nur in Production verfügbar' 
+      };
+    }
+    
+    console.log('🔍 Checking for launcher updates...');
+    await autoUpdater.checkForUpdates();
+    return { success: true, message: 'Update-Check gestartet' };
+  } catch (error) {
+    console.error('Launcher update check failed:', error);
+    return { success: false, error: error.message };
+  }
+});
+
+ipcMain.handle('launcher:install-update', async () => {
+  try {
+    if (!app.isPackaged) {
+      return { 
+        success: false, 
+        message: 'Auto-Update nur in Production verfügbar' 
+      };
+    }
+    
+    console.log('🔄 Installing launcher update and restarting...');
+    autoUpdater.quitAndInstall();
+    return { success: true };
+  } catch (error) {
+    console.error('Launcher update install failed:', error);
+    return { success: false, error: error.message };
+  }
+});
+
+// Game Auto-Update (existing system)
 ipcMain.handle('updates:check', async () => {
   try {
     if (!autoUpdateService) {

@@ -16,13 +16,13 @@ Der Service wechselt automatisch zwischen den Discord Apps:
 
 ```javascript
 // Launcher startet → Illusion/Launcher App
-await discordService.setLauncherActivity()
+await discordService.setLauncherActivity();
 
 // Illusion startet → Illusion App
-await discordService.setGameActivity(info, { id: 'illusion' })
+await discordService.setGameActivity(info, { id: "illusion" });
 
 // Zorua startet → Zorua App
-await discordService.setGameActivity(info, { id: 'zorua' })
+await discordService.setGameActivity(info, { id: "zorua" });
 ```
 
 ---
@@ -30,19 +30,23 @@ await discordService.setGameActivity(info, { id: 'zorua' })
 ## 📁 Neue Dateien
 
 ### 1. `.env` - Discord Configuration
+
 ```bash
 # launcher-electron/.env
 DISCORD_CLIENT_ID_ZORUA=your_app_id_here
 ```
+
 ⚠️ **Wird NICHT in Git committed** (in .gitignore)
 
 ### 2. `DISCORD_SETUP.md` - Vollständige Anleitung
+
 - Schritt-für-Schritt Discord App Setup
 - Asset Upload Guide
 - Troubleshooting
 - Best Practices
 
 ### 3. `DISCORD_README.md` - Quick Reference
+
 - Aktuelle Konfiguration
 - Quick Start Guide
 - Asset Checkliste
@@ -55,6 +59,7 @@ DISCORD_CLIENT_ID_ZORUA=your_app_id_here
 ### `discordService.js` - Komplett überarbeitet
 
 **Vorher:**
+
 ```javascript
 constructor() {
   this.client = null;
@@ -67,12 +72,13 @@ async initialize() {
 ```
 
 **Nachher:**
+
 ```javascript
 constructor() {
   this.clients = new Map(); // Map für mehrere Clients
   this.currentClient = null;
   this.currentGameId = null;
-  
+
   this.gameClients = {
     illusion: { id: '1428590219430461602', ... },
     zorua: { id: process.env.DISCORD_CLIENT_ID_ZORUA, ... },
@@ -88,6 +94,7 @@ async initialize(gameId = 'launcher') {
 ```
 
 **Neue Features:**
+
 - ✅ Multiple Discord RPC Clients gleichzeitig verwalten
 - ✅ Automatischer Wechsel beim Game-Start
 - ✅ Separate Assets pro Spiel
@@ -101,15 +108,18 @@ async initialize(gameId = 'launcher') {
 ### Pro Discord Application benötigt:
 
 **Required:**
+
 - `{game}_logo` - Hauptlogo (512x512)
 - `mirrorbytes_logo` - Studio Logo (512x512)
 - `launcher_icon` - Kleines Icon (128x128)
 
 **Optional:**
+
 - Activity Icons (battle, gym, training, etc.)
 - Map Icons (Kanto, Johto, etc.)
 
 ### Upload Location:
+
 ```
 Discord Developer Portal
 → Your Application
@@ -134,6 +144,7 @@ Discord Developer Portal
 ### Für Zorua (noch zu tun):
 
 1. ⏳ Neue Discord App erstellen:
+
    ```
    https://discord.com/developers/applications
    → New Application
@@ -143,6 +154,7 @@ Discord Developer Portal
 2. ⏳ Application ID kopieren
 
 3. ⏳ In `.env` eintragen:
+
    ```bash
    DISCORD_CLIENT_ID_ZORUA=deine_app_id
    ```
@@ -160,6 +172,7 @@ Discord Developer Portal
 ### Manuelle Tests:
 
 1. **Launcher starten:**
+
    ```bash
    cd launcher-electron
    npm run dev
@@ -168,6 +181,7 @@ Discord Developer Portal
 2. **Discord öffnen**
 
 3. **Rich Presence überprüfen:**
+
    - Im Launcher → "Im Mirrorbytes Studio"
    - Illusion starten → "Spielt Illusion"
    - Zorua starten → "Spielt Zorua"
@@ -195,17 +209,21 @@ Discord Developer Portal
 ## 🐛 Bekannte Issues
 
 ### Issue 1: Assets nicht sichtbar
+
 **Problem:** Discord zeigt keine Bilder an  
 **Lösung:** Assets benötigen 5-10 Minuten nach Upload
 
 ### Issue 2: Zorua App nicht konfiguriert
+
 **Problem:** `⚠️ Discord Rich Presence for zorua not configured`  
-**Lösung:** 
+**Lösung:**
+
 1. Zorua Discord App erstellen
 2. ID in `.env` eintragen: `DISCORD_CLIENT_ID_ZORUA=...`
 3. Launcher neu starten
 
 ### Issue 3: Beide Games gleicher Name
+
 **Problem:** Illusion und Zorua zeigen gleichen Discord Namen  
 **Lösung:** Separate Zorua App erstellen (temporär teilen sie sich eine App)
 
@@ -214,21 +232,25 @@ Discord Developer Portal
 ## 🚀 Vorteile der neuen Lösung
 
 ### ✅ Bessere User Experience:
+
 - Jedes Spiel hat eigenen Discord Namen
 - Separate Icons und Branding
 - Klarere Anzeige was gespielt wird
 
 ### ✅ Professioneller:
+
 - Sauber getrennte Applications
 - Eigene Assets pro Spiel
 - Leichter zu verwalten
 
 ### ✅ Skalierbar:
+
 - Neue Spiele einfach hinzufügen
 - Jedes Spiel kann eigene Activities haben
 - Unabhängige Asset-Verwaltung
 
 ### ✅ Flexibel:
+
 - Verschiedene Discord Servers pro Game möglich
 - Unterschiedliche Buttons/Links
 - Game-spezifische Features
@@ -238,12 +260,14 @@ Discord Developer Portal
 ## 📊 Migration Roadmap
 
 ### Phase 1: Setup (Jetzt) ✅
+
 - [x] Code umgestellt auf Multi-Client System
 - [x] Illusion App ID konfiguriert
 - [x] `.env` System eingerichtet
 - [x] Dokumentation geschrieben
 
 ### Phase 2: Illusion Assets (To Do) ⏳
+
 - [ ] `illusion_logo` hochladen
 - [ ] `mirrorbytes_logo` hochladen
 - [ ] `launcher_icon` hochladen
@@ -251,12 +275,14 @@ Discord Developer Portal
 - [ ] Testen in Discord
 
 ### Phase 3: Zorua Setup (To Do) ⏳
+
 - [ ] Neue Discord Application erstellen
 - [ ] App ID in `.env` eintragen
 - [ ] Assets hochladen
 - [ ] Testen in Discord
 
 ### Phase 4: Deployment ⏳
+
 - [ ] `.env` auf Build-Server konfigurieren
 - [ ] Production Build testen
 - [ ] Release erstellen
@@ -276,12 +302,14 @@ Discord Developer Portal
 ## ✅ Checkliste
 
 ### Sofort:
+
 - [x] Code implementiert
 - [x] `.env` Dateien erstellt
 - [x] Dokumentation geschrieben
 - [ ] `.env` zu .gitignore hinzugefügt ✅
 
 ### Nächste Schritte:
+
 - [ ] Illusion Discord App Assets hochladen
 - [ ] Zorua Discord App erstellen
 - [ ] Zorua App ID in `.env` eintragen
@@ -289,11 +317,12 @@ Discord Developer Portal
 - [ ] Both Apps testen
 
 ### Deployment:
+
 - [ ] `.env` auf CI/CD konfigurieren
 - [ ] Production Build
 - [ ] Release v1.1.0
 
 ---
 
-*Erstellt: {{ date }}*  
-*Status: Code ✅ | Illusion Assets ⏳ | Zorua App ⏳*
+_Erstellt: {{ date }}_  
+_Status: Code ✅ | Illusion Assets ⏳ | Zorua App ⏳_
