@@ -1,8 +1,10 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { FiMinus, FiMaximize2, FiX } from 'react-icons/fi';
+import { FiMinus, FiMaximize2, FiX, FiGlobe } from 'react-icons/fi';
 
 const TitleBar = () => {
+  const [language, setLanguage] = useState(localStorage.getItem('language') || 'de');
+
   const handleMinimize = () => {
     window.electron?.minimizeWindow();
   };
@@ -13,6 +15,14 @@ const TitleBar = () => {
 
   const handleClose = () => {
     window.electron?.closeWindow();
+  };
+
+  const toggleLanguage = () => {
+    const newLang = language === 'de' ? 'en' : 'de';
+    setLanguage(newLang);
+    localStorage.setItem('language', newLang);
+    // Trigger reload or language change event if needed
+    window.dispatchEvent(new Event('languagechange'));
   };
 
   return (
@@ -41,8 +51,25 @@ const TitleBar = () => {
         </motion.span>
       </div>
 
-      {/* Window Controls */}
+      {/* Language Switcher & Window Controls */}
       <div className="flex items-center space-x-1" style={{ WebkitAppRegion: 'no-drag' }}>
+        {/* Language Switcher */}
+        <motion.button
+          whileHover={{ backgroundColor: 'rgba(6, 182, 212, 0.2)', scale: 1.05 }}
+          whileTap={{ scale: 0.95 }}
+          onClick={toggleLanguage}
+          className="h-8 px-3 flex items-center space-x-1.5 text-white/70 hover:text-cyan-400 transition-colors rounded group"
+          title={language === 'de' ? 'Switch to English' : 'Zu Deutsch wechseln'}
+        >
+          <FiGlobe size={13} className="group-hover:text-cyan-400" />
+          <span className="text-xs font-medium group-hover:text-cyan-400">
+            {language === 'de' ? '🇩🇪' : '🇬🇧'}
+          </span>
+        </motion.button>
+
+        <div className="w-px h-5 bg-white/10 mx-1"></div>
+
+        {/* Window Controls */}
         <motion.button
           whileHover={{ backgroundColor: 'rgba(255, 255, 255, 0.1)', scale: 1.1 }}
           whileTap={{ scale: 0.9 }}

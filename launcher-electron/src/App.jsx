@@ -59,7 +59,6 @@ function App() {
   const [updateInfo, setUpdateInfo] = useState(null);
   const [showUpdateNotification, setShowUpdateNotification] = useState(false);
   const [playtime, setPlaytime] = useState(0); // Spielzeit in Minuten
-  const [debugMode, setDebugMode] = useState(false);
   const [installedVersion, setInstalledVersion] = useState(null);
   const [installPath, setInstallPath] = useState(null);
   const [isInstalled, setIsInstalled] = useState(false);
@@ -380,26 +379,6 @@ function App() {
                         {Math.floor(playtime / 60)}h {playtime % 60}m
                       </div>
                       <p className="text-sm text-gray-400 mt-1">Gesamte gespielte Zeit</p>
-                    </div>
-
-                    {/* Debug Mode */}
-                    <div className="bg-dark-700 rounded-lg p-4 flex items-start space-x-4">
-                      <div className="flex-1">
-                        <h3 className="font-semibold mb-1 flex items-center space-x-2">
-                          <span>🐛</span>
-                          <span>Debug-Modus</span>
-                        </h3>
-                        <p className="text-sm text-gray-400">Aktiviert erweiterte Entwickler-Features</p>
-                      </div>
-                      <label className="relative inline-flex items-center cursor-pointer">
-                        <input 
-                          type="checkbox" 
-                          className="sr-only peer"
-                          checked={debugMode}
-                          onChange={(e) => setDebugMode(e.target.checked)}
-                        />
-                        <div className="w-11 h-6 bg-gray-600 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-cyan-500"></div>
-                      </label>
                     </div>
 
                     {/* Open Game Folder */}

@@ -95,6 +95,12 @@ let forceQuit = true;
 function createWindow() {
   console.log('Creating window...');
   
+  // Entferne Menü in Production (verhindert DevTools-Zugriff über Menü)
+  if (app.isPackaged) {
+    const { Menu } = require('electron');
+    Menu.setApplicationMenu(null);
+  }
+  
   mainWindow = new BrowserWindow({
     width: 1280,
     height: 720,
@@ -107,7 +113,7 @@ function createWindow() {
       nodeIntegration: false,
       contextIsolation: true,
       preload: path.join(__dirname, 'preload.js'),
-      devTools: false // DevTools komplett deaktiviert für Production
+      devTools: app.isPackaged ? false : true // DevTools nur im Development
     },
     icon: path.join(__dirname, '../assets/icon.png.svg'),
     show: false // Don't show until ready
@@ -194,6 +200,18 @@ function createWindow() {
       event.preventDefault();
     }
   });
+
+  // Verhindere dass DevTools über andere Wege geöffnet werden
+  if (app.isPackaged) {
+    mainWindow.webContents.on('devtools-opened', () => {
+      mainWindow.webContents.closeDevTools();
+    });
+    
+    // Entferne Rechtsklick-Menü in Production
+    mainWindow.webContents.on('context-menu', (event) => {
+      event.preventDefault();
+    });
+  }
 
   // Prevent window from closing on error
   mainWindow.on('unresponsive', () => {
