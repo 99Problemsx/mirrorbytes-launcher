@@ -3,8 +3,10 @@ import { motion } from 'framer-motion';
 import { FiCheck, FiSun, FiMoon, FiDroplet } from 'react-icons/fi';
 import ThemeSystem from '../services/themeSystem';
 import { toast } from 'react-toastify';
+import { useTranslation } from '../i18n/translations';
 
 const ThemeSelectorPage = () => {
+  const { t } = useTranslation();
   const [themeSystem] = useState(() => new ThemeSystem());
   const [themes, setThemes] = useState([]);
   const [currentTheme, setCurrentTheme] = useState(null);
@@ -24,7 +26,7 @@ const ThemeSelectorPage = () => {
     const newTheme = themeSystem.changeTheme(themeId);
     if (newTheme) {
       setCurrentTheme(newTheme);
-      toast.success(`🎨 Theme "${newTheme.name}" aktiviert!`, {
+      toast.success(`🎨 ${t('themeActivated').replace('{name}', newTheme.name)}`, {
         position: 'top-center',
         autoClose: 2000,
       });
@@ -34,7 +36,7 @@ const ThemeSelectorPage = () => {
   const handleReset = () => {
     const defaultTheme = themeSystem.resetTheme();
     setCurrentTheme(defaultTheme);
-    toast.info('🔄 Theme zurückgesetzt', {
+    toast.info(`🔄 ${t('themeResetSuccess')}`, {
       position: 'top-center',
       autoClose: 2000,
     });
@@ -51,10 +53,10 @@ const ThemeSelectorPage = () => {
           <div>
             <h1 className="text-4xl font-bold mb-2 flex items-center space-x-3">
               <FiDroplet className="text-purple-400" size={32} />
-              <span>Themes & Designs</span>
+              <span>{t('themesTitle')}</span>
             </h1>
             <p className="text-gray-400">
-              Personalisiere deinen Launcher mit verschiedenen Farbthemen
+              {t('themesDesc')}
             </p>
           </div>
 
@@ -62,7 +64,7 @@ const ThemeSelectorPage = () => {
             onClick={handleReset}
             className="px-4 py-2 bg-gray-700 hover:bg-gray-600 rounded-lg transition-all"
           >
-            🔄 Zurücksetzen
+            🔄 {t('themeReset')}
           </button>
         </div>
 
@@ -75,7 +77,7 @@ const ThemeSelectorPage = () => {
           >
             <div className="flex items-center justify-between">
               <div>
-                <h2 className="text-2xl font-bold mb-1">Aktuelles Theme</h2>
+                <h2 className="text-2xl font-bold mb-1">{t('currentTheme')}</h2>
                 <p className="text-gray-400">{currentTheme.description}</p>
               </div>
               <div className="flex items-center space-x-4">
@@ -90,35 +92,35 @@ const ThemeSelectorPage = () => {
 
             {/* Color Preview */}
             <div className="mt-4 pt-4 border-t border-gray-700">
-              <p className="text-sm text-gray-400 mb-3">Farbpalette:</p>
+              <p className="text-sm text-gray-400 mb-3">{t('colorPalette')}:</p>
               <div className="flex items-center space-x-3">
                 <div className="flex flex-col items-center">
                   <div 
                     className="w-12 h-12 rounded-lg shadow-lg"
                     style={{ backgroundColor: currentTheme.primary }}
                   ></div>
-                  <span className="text-xs text-gray-400 mt-1">Primär</span>
+                  <span className="text-xs text-gray-400 mt-1">{t('primary')}</span>
                 </div>
                 <div className="flex flex-col items-center">
                   <div 
                     className="w-12 h-12 rounded-lg shadow-lg"
                     style={{ backgroundColor: currentTheme.secondary }}
                   ></div>
-                  <span className="text-xs text-gray-400 mt-1">Sekundär</span>
+                  <span className="text-xs text-gray-400 mt-1">{t('secondary')}</span>
                 </div>
                 <div className="flex flex-col items-center">
                   <div 
                     className="w-12 h-12 rounded-lg shadow-lg"
                     style={{ backgroundColor: currentTheme.accent }}
                   ></div>
-                  <span className="text-xs text-gray-400 mt-1">Akzent</span>
+                  <span className="text-xs text-gray-400 mt-1">{t('accent')}</span>
                 </div>
                 <div className="flex flex-col items-center">
                   <div 
                     className="w-12 h-12 rounded-lg shadow-lg border border-gray-600"
                     style={{ backgroundColor: currentTheme.background }}
                   ></div>
-                  <span className="text-xs text-gray-400 mt-1">Hintergrund</span>
+                  <span className="text-xs text-gray-400 mt-1">{t('themeBackground')}</span>
                 </div>
               </div>
             </div>
@@ -130,9 +132,9 @@ const ThemeSelectorPage = () => {
           <div className="flex items-start space-x-4">
             <div className="text-4xl">💡</div>
             <div className="flex-1">
-              <h3 className="text-lg font-bold text-blue-400 mb-2">Theme-System</h3>
+              <h3 className="text-lg font-bold text-blue-400 mb-2">{t('themeSystem')}</h3>
               <p className="text-sm text-gray-300">
-                Wähle aus 8 verschiedenen dunklen Themes! Jedes Theme ändert die Farben des gesamten Launchers inklusive dem animierten Hintergrund. Die Themes werden automatisch gespeichert und beim nächsten Start wiederhergestellt.
+                {t('themeSystemDesc')}
               </p>
             </div>
           </div>
@@ -142,7 +144,7 @@ const ThemeSelectorPage = () => {
         <div className="mb-8">
           <h2 className="text-2xl font-bold mb-6 flex items-center space-x-2">
             <FiMoon className="text-purple-400" />
-            <span>Dunkle Themes</span>
+            <span>{t('darkThemes')}</span>
           </h2>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -215,7 +217,7 @@ const ThemeSelectorPage = () => {
                         background: `linear-gradient(to right, ${theme.primary}, ${theme.secondary})`
                       } : {}}
                     >
-                      {isActive ? 'Aktiv ✓' : 'Auswählen'}
+                      {isActive ? `${t('active')} ✓` : t('selectTheme')}
                     </button>
                   </div>
                 </motion.div>
@@ -226,13 +228,13 @@ const ThemeSelectorPage = () => {
 
         {/* Theme Tips */}
         <div className="glass-effect rounded-xl p-6 border-2 border-green-500/30">
-          <h3 className="text-lg font-bold text-green-400 mb-3">💡 Theme-Tipps</h3>
+          <h3 className="text-lg font-bold text-green-400 mb-3">💡 {t('themeTips')}</h3>
           <ul className="text-sm text-gray-300 space-y-2">
-            <li>• Alle 8 Themes sind für nächtliches Gaming optimiert</li>
-            <li>• Jedes Theme ändert alle Farben im gesamten Launcher inklusive Hintergrund-Animation</li>
-            <li>• Deine Theme-Auswahl wird automatisch gespeichert</li>
-            <li>• Themes beeinflussen nicht die Performance</li>
-            <li>• Wechsle zwischen Themes für verschiedene Stimmungen und Vorlieben</li>
+            <li>• {t('themeTip1')}</li>
+            <li>• {t('themeTip2')}</li>
+            <li>• {t('themeTip3')}</li>
+            <li>• {t('themeTip4')}</li>
+            <li>• {t('themeTip5')}</li>
           </ul>
         </div>
       </motion.div>
