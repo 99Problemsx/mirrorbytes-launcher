@@ -340,10 +340,10 @@ const UpdatesPage = ({ selectedGame }) => {
         <div className="flex items-start space-x-3">
           <span className="text-2xl">ℹ️</span>
           <div>
-            <p className="font-medium text-blue-400 mb-1">Hinweis</p>
+            <p className="font-medium text-blue-400 mb-1">{t('info')}</p>
             <p className="text-sm text-gray-300">
-              Updates werden von GitHub Releases heruntergeladen. 
-              Während eines Updates wird automatisch ein Backup erstellt.
+              {t('updatesFromGithub')}
+              {t('autoBackupCreated')}
             </p>
           </div>
         </div>

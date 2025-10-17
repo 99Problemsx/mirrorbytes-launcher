@@ -135,7 +135,7 @@ const BackupPage = ({ selectedGame }) => {
       },
       {
         name: 'backup_demo_3',
-        displayName: 'Automatisches Backup',
+        displayName: t('autoBackupName'),
         created: new Date(Date.now() - 86400000 * 1).toISOString(),
         size: 51234567,
         type: 'auto'
@@ -644,7 +644,7 @@ const BackupPage = ({ selectedGame }) => {
                           <span>{backup.displayName}</span>
                           {backup.type === 'auto' && (
                             <span className="text-xs px-2 py-1 bg-blue-500/20 text-blue-400 rounded">
-                              Automatisch
+                              {t('autoResolution')}
                             </span>
                           )}
                         </h3>

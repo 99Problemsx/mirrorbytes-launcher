@@ -390,6 +390,7 @@ export const translations = {
     customArgsDesc: 'Zusätzliche Kommandozeilen-Argumente (fortgeschritten)',
     autoBackupCreated: 'Während eines Updates wird automatisch ein Backup erstellt',
     autoBackupName: 'Automatisches Backup',
+    updatesFromGithub: 'Updates werden von GitHub Releases heruntergeladen.',
     
     // Errors & Messages
     error: 'Fehler',
@@ -809,6 +810,8 @@ export const translations = {
     customArgs: 'Custom Arguments',
     customArgsDesc: 'Additional command line arguments (advanced)',
     autoBackupCreated: 'Automatic backup created during update',
+    autoBackupName: 'Automatic Backup',
+    updatesFromGithub: 'Updates are downloaded from GitHub Releases.',
     
     // Errors & Messages
     error: 'Error',
