@@ -21,8 +21,8 @@ const TitleBar = () => {
     const newLang = language === 'de' ? 'en' : 'de';
     setLanguage(newLang);
     localStorage.setItem('language', newLang);
-    // Trigger reload or language change event if needed
-    window.dispatchEvent(new Event('languagechange'));
+    // Reload app to apply language change
+    setTimeout(() => window.location.reload(), 100);
   };
 
   return (

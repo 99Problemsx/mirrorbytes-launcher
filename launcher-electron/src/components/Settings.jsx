@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { FiX, FiFolder, FiGlobe, FiMoon, FiSun, FiToggleLeft, FiToggleRight, FiTrash2 } from 'react-icons/fi';
+import { useTranslation } from '../i18n/translations';
 
 const Settings = ({ isOpen, onClose }) => {
+  const { t, language: currentLang } = useTranslation();
   const [settings, setSettings] = useState({
     installPath: localStorage.getItem('installPath') || '',
     autoUpdate: localStorage.getItem('autoUpdate') === 'true',
@@ -18,10 +20,14 @@ const Settings = ({ isOpen, onClose }) => {
   const updateSetting = (key, value) => {
     setSettings(prev => ({ ...prev, [key]: value }));
     localStorage.setItem(key, value.toString());
+    // Reload app when language changes
+    if (key === 'language') {
+      setTimeout(() => window.location.reload(), 100);
+    }
   };
 
   const clearCache = () => {
-    const confirmClear = window.confirm('Möchtest du wirklich den Cache leeren? Dies kann nicht rückgängig gemacht werden.');
+    const confirmClear = window.confirm(t('clearCacheConfirm'));
     if (confirmClear) {
       // Clear only cache-related items, keep settings
       const keysToKeep = ['installPath', 'autoUpdate', 'language', 'theme'];
@@ -31,7 +37,7 @@ const Settings = ({ isOpen, onClose }) => {
           localStorage.removeItem(key);
         }
       });
-      alert('Cache erfolgreich geleert!');
+      alert(t('clearCacheSuccess'));
     }
   };
 
@@ -65,7 +71,7 @@ const Settings = ({ isOpen, onClose }) => {
           {/* Header */}
           <div className="sticky top-0 glass-effect-strong border-b border-gray-700 p-6 flex items-center justify-between z-10">
             <h2 className="text-2xl font-bold bg-gradient-to-r from-cyan-400 to-purple-500 bg-clip-text text-transparent">
-              Einstellungen
+              {t('settings')}
             </h2>
             <button
               onClick={onClose}
@@ -81,7 +87,7 @@ const Settings = ({ isOpen, onClose }) => {
             <div className="space-y-2">
               <label className="flex items-center space-x-2 text-sm font-medium text-gray-300">
                 <FiFolder />
-                <span>Installationspfad</span>
+                <span>{t('installPath')}</span>
               </label>
               <div className="flex space-x-2">
                 <input
@@ -96,7 +102,7 @@ const Settings = ({ isOpen, onClose }) => {
                   onClick={selectInstallPath}
                   className="px-4 py-3 bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-600 hover:to-blue-700 rounded-lg font-medium transition-all whitespace-nowrap text-sm"
                 >
-                  📁 Suchen
+                  📁 {t('search')}
                 </button>
               </div>
             </div>
@@ -106,8 +112,8 @@ const Settings = ({ isOpen, onClose }) => {
               <div className="flex items-center space-x-3">
                 {settings.autoUpdate ? <FiToggleRight size={24} className="text-green-400" /> : <FiToggleLeft size={24} className="text-gray-400" />}
                 <div>
-                  <p className="font-medium">Automatische Updates</p>
-                  <p className="text-sm text-gray-400">Lädt Updates automatisch im Hintergrund</p>
+                  <p className="font-medium">{t('autoUpdate')}</p>
+                  <p className="text-sm text-gray-400">{t('autoUpdateDesc')}</p>
                 </div>
               </div>
               <button
@@ -118,7 +124,7 @@ const Settings = ({ isOpen, onClose }) => {
                     : 'bg-gray-600 hover:bg-gray-700'
                 }`}
               >
-                {settings.autoUpdate ? 'An' : 'Aus'}
+                {settings.autoUpdate ? t('on') : t('off')}
               </button>
             </div>
 
@@ -126,7 +132,7 @@ const Settings = ({ isOpen, onClose }) => {
             <div className="space-y-2">
               <label className="flex items-center space-x-2 text-sm font-medium text-gray-300">
                 <FiGlobe />
-                <span>Sprache</span>
+                <span>{t('language')}</span>
               </label>
               <div className="grid grid-cols-2 gap-3">
                 <button
@@ -156,7 +162,7 @@ const Settings = ({ isOpen, onClose }) => {
             <div className="space-y-2">
               <label className="flex items-center space-x-2 text-sm font-medium text-gray-300">
                 {settings.theme === 'dark' ? <FiMoon /> : <FiSun />}
-                <span>Design</span>
+                <span>{t('theme')}</span>
               </label>
               <div className="grid grid-cols-2 gap-3">
                 <button
@@ -168,7 +174,7 @@ const Settings = ({ isOpen, onClose }) => {
                   }`}
                 >
                   <FiMoon />
-                  <span>Dunkel</span>
+                  <span>{t('dark')}</span>
                 </button>
                 <button
                   onClick={() => updateSetting('theme', 'light')}
@@ -179,7 +185,7 @@ const Settings = ({ isOpen, onClose }) => {
                   }`}
                 >
                   <FiSun />
-                  <span>Hell</span>
+                  <span>{t('light')}</span>
                 </button>
               </div>
             </div>
@@ -191,10 +197,10 @@ const Settings = ({ isOpen, onClose }) => {
                 className="w-full px-4 py-3 bg-red-600 hover:bg-red-700 rounded-lg font-medium transition-all flex items-center justify-center space-x-2"
               >
                 <FiTrash2 />
-                <span>Cache leeren</span>
+                <span>{t('clearCache')}</span>
               </button>
               <p className="text-xs text-gray-400 text-center">
-                Entfernt temporäre Dateien und Spielzeit-Daten
+                {t('clearCacheDesc')}
               </p>
             </div>
           </div>
@@ -205,7 +211,7 @@ const Settings = ({ isOpen, onClose }) => {
               onClick={onClose}
               className="w-full px-6 py-3 bg-gradient-to-r from-cyan-500 to-purple-600 hover:from-cyan-600 hover:to-purple-700 rounded-lg font-bold transition-all"
             >
-              Schließen
+              {t('close')}
             </button>
           </div>
         </motion.div>

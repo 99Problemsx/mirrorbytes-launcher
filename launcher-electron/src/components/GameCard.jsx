@@ -2,11 +2,13 @@ import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { FiPlay, FiDownload, FiSettings, FiClock, FiCheck, FiRefreshCw, FiFolder } from 'react-icons/fi';
 import { useToast } from './Toast';
+import { useTranslation } from '../i18n/translations';
 import Settings from './Settings';
 import Confetti from './Confetti';
 import statisticsService from '../services/statisticsService';
 
 const GameCard = ({ game }) => {
+  const { t } = useTranslation();
   const [isLaunching, setIsLaunching] = useState(false);
   const [isInstalled, setIsInstalled] = useState(false);
   const [isDownloading, setIsDownloading] = useState(false);
@@ -28,11 +30,11 @@ const GameCard = ({ game }) => {
   useEffect(() => {
     const handleOnline = () => {
       setIsOnline(true);
-      addToast('Verbindung wiederhergestellt', 'success', 3000);
+      addToast(t('connectionRestored'), 'success', 3000);
     };
     const handleOffline = () => {
       setIsOnline(false);
-      addToast('Keine Internetverbindung', 'warning', 5000);
+      addToast(t('noInternet'), 'warning', 5000);
     };
 
     window.addEventListener('online', handleOnline);
@@ -154,15 +156,15 @@ const GameCard = ({ game }) => {
       if (result?.success) {
         console.log('Game launched successfully with flags:', launchFlags);
         console.log('⏱️ Playtime tracking started');
-        addToast('Spiel gestartet!', 'success', 2000);
+        addToast(t('gameStarted'), 'success', 2000);
       } else {
         console.error('Failed to launch game:', result?.message);
         setSessionStart(null); // Reset if launch failed
-        addToast(`Fehler beim Starten: ${result?.message || 'Unbekannter Fehler'}`, 'error', 5000);
+        addToast(`${t('errorStarting')}: ${result?.message || t('unknownError')}`, 'error', 5000);
       }
     } catch (error) {
       console.error('Error launching game:', error);
-      addToast(`Fehler: ${error.message}`, 'error', 5000);
+      addToast(`${t('error')}: ${error.message}`, 'error', 5000);
       setSessionStart(null); // Reset if launch failed
     } finally {
       // Game closed
@@ -173,7 +175,7 @@ const GameCard = ({ game }) => {
         localStorage.setItem(`${game.id}_playtime`, newTotal.toString());
         console.log(`⏱️ Session ended: ${sessionDuration} minutes (Total: ${newTotal} minutes)`);
         if (sessionDuration > 0) {
-          addToast(`Spielsitzung: ${sessionDuration} Min`, 'info', 3000);
+          addToast(`${t('sessionDuration')}: ${sessionDuration} ${t('min')}`, 'info', 3000);
         }
         setSessionStart(null);
       }
@@ -183,7 +185,7 @@ const GameCard = ({ game }) => {
 
   const handleDownload = async (isRetry = false) => {
     if (!isOnline) {
-      addToast('Keine Internetverbindung! Bitte prüfe deine Verbindung.', 'error', 5000);
+      addToast(t('noInternetCheck'), 'error', 5000);
       return;
     }
 
@@ -192,10 +194,10 @@ const GameCard = ({ game }) => {
     setDownloadProgress(0);
 
     if (isRetry) {
-      addToast(`Wiederholung ${retryCount + 1}/3...`, 'info', 3000);
+      addToast(`${t('retry')} ${retryCount + 1}/3...`, 'info', 3000);
     } else {
       setRetryCount(0);
-      addToast('Download gestartet...', 'info', 2000);
+      addToast(t('downloadStarted'), 'info', 2000);
     }
 
     try {
@@ -219,7 +221,7 @@ const GameCard = ({ game }) => {
           console.log('📦 Extracting:', extracting);
           setIsExtracting(extracting);
           if (extracting) {
-            addToast('Extrahiere Dateien...', 'info', 2000);
+            addToast(t('extracting'), 'info', 2000);
           }
         }
       );
@@ -232,7 +234,7 @@ const GameCard = ({ game }) => {
         }
         setIsInstalled(true);
         setRetryCount(0);
-        addToast('✅ Download erfolgreich!', 'success', 4000);
+        addToast(`✅ ${t('downloadSuccess')}`, 'success', 4000);
         setShowConfetti(true); // 🎉 Trigger confetti!
         setTimeout(() => setShowConfetti(false), 3000);
         // Re-check installation to update UI
@@ -277,7 +279,7 @@ const GameCard = ({ game }) => {
       return;
     }
 
-    addToast('Deinstallation wird gestartet...', 'info', 2000);
+    addToast(t('uninstallStarting'), 'info', 2000);
 
     try {
       const result = await window.electron?.uninstallGame(game.id);
@@ -287,22 +289,22 @@ const GameCard = ({ game }) => {
         setIsInstalled(false);
         setInstallPath('');
         setInstalledVersion(game.version);
-        addToast('✅ Spiel erfolgreich deinstalliert!', 'success', 4000);
+        addToast(`✅ ${t('uninstallSuccess')}`, 'success', 4000);
         // Re-check installation to update UI
         setTimeout(() => checkGameInstalled(), 500);
       } else {
         console.error('❌ Uninstall failed:', result?.message);
-        addToast(`Fehler beim Deinstallieren: ${result?.message || 'Unbekannter Fehler'}`, 'error', 5000);
+        addToast(`${t('errorUninstalling')}: ${result?.message || t('unknownError')}`, 'error', 5000);
       }
     } catch (error) {
       console.error('❌ Error uninstalling game:', error);
-      addToast(`Fehler: ${error.message}`, 'error', 5000);
+      addToast(`${t('error')}: ${error.message}`, 'error', 5000);
     }
   };
 
   const handleOpenFolder = async () => {
     if (!installPath) {
-      addToast('Installationspfad nicht verfügbar', 'error', 3000);
+      addToast(t('installPathNotAvailable'), 'error', 3000);
       return;
     }
 
@@ -311,11 +313,11 @@ const GameCard = ({ game }) => {
       if (result?.success) {
         console.log('✅ Opened folder successfully');
       } else {
-        addToast(`Fehler: ${result?.error || 'Konnte Ordner nicht öffnen'}`, 'error', 3000);
+        addToast(`${t('error')}: ${result?.error || t('couldNotOpenFolder')}`, 'error', 3000);
       }
     } catch (error) {
       console.error('❌ Error opening folder:', error);
-      addToast(`Fehler: ${error.message}`, 'error', 3000);
+      addToast(`${t('error')}: ${error.message}`, 'error', 3000);
     }
   };
 

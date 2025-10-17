@@ -2,6 +2,7 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { FiFolder, FiSettings } from 'react-icons/fi';
 import { toast } from 'react-toastify';
+import { useTranslation } from './i18n/translations';
 import TitleBar from './components/TitleBar';
 import Sidebar from './components/Sidebar';
 import GameCard from './components/GameCard';
@@ -28,32 +29,33 @@ import ThemeSystem from './services/themeSystem';
 import statisticsService from './services/statisticsService';
 import useKeyboardShortcuts, { ShortcutsHelp } from './hooks/useKeyboardShortcuts';
 
-// Games configuration
-const GAMES = [
-  {
-    id: 'illusion',
-    name: 'Pokémon Illusion',
-    description: 'Erlebe ein episches Abenteuer in der Welt der Pokémon',
-    version: 'v1.0.0',
-    image: '/assets/games/illusion-cover.jpg',
-    repo: 'Illusion',
-    status: 'not-installed', // Status wird dynamisch geprüft
-    playTime: '0h 0m', // Wird nach Installation aktualisiert
-  },
-  {
-    id: 'zorua',
-    name: 'Zorua: The Divine Deception',
-    description: 'Ein mysteriöses Abenteuer mit dem legendären Pokémon Zorua',
-    version: 'v1.0.0',
-    image: '/assets/games/zorua-cover.jpg',
-    repo: 'Zorua-the-divine-deception',
-    status: 'not-installed', // Status wird dynamisch geprüft
-    playTime: '0h 0m', // Wird nach Installation aktualisiert
-  },
-  // Add more games here in the future
-];
-
 function App() {
+  const { t } = useTranslation();
+  
+  // Games configuration (descriptions will be translated dynamically)
+  const GAMES = [
+    {
+      id: 'illusion',
+      name: 'Pokémon Illusion',
+      description: t('illusionDesc'),
+      version: 'v1.0.0',
+      image: '/assets/games/illusion-cover.jpg',
+      repo: 'Illusion',
+      status: 'not-installed', // Status wird dynamisch geprüft
+      playTime: '0h 0m', // Wird nach Installation aktualisiert
+    },
+    {
+      id: 'zorua',
+      name: 'Zorua: The Divine Deception',
+      description: t('zoruaDesc'),
+      version: 'v1.0.0',
+      image: '/assets/games/zorua-cover.jpg',
+      repo: 'Zorua-the-divine-deception',
+      status: 'not-installed', // Status wird dynamisch geprüft
+      playTime: '0h 0m', // Wird nach Installation aktualisiert
+    },
+    // Add more games here in the future
+  ];
   const [selectedGame, setSelectedGame] = useState(GAMES[0]);
   const [activeSection, setActiveSection] = useState('home');
   const [updateInfo, setUpdateInfo] = useState(null);
@@ -105,12 +107,12 @@ function App() {
   // Achievement notification handler
   useEffect(() => {
     achievementManager.onAchievementUnlocked((achievement) => {
-      toast.success(`🏆 Achievement freigeschaltet: ${achievement.name}`, {
+      toast.success(`🏆 ${t('achievementUnlocked')}: ${achievement.name}`, {
         position: 'top-center',
         autoClose: 5000,
       });
     });
-  }, []);
+  }, [achievementManager, t]);
 
   // Check for launcher updates
   useEffect(() => {
@@ -184,7 +186,7 @@ function App() {
 
   const handleOpenGameFolder = async () => {
     if (!installPath) {
-      toast.error('Installationspfad nicht verfügbar', {
+      toast.error(t('installPathNotAvailable'), {
         position: 'top-center',
         autoClose: 3000,
       });
@@ -194,19 +196,19 @@ function App() {
     try {
       const result = await window.electron?.openPath(installPath);
       if (result?.success) {
-        toast.success('Ordner geöffnet', {
+        toast.success(t('folderOpened'), {
           position: 'top-center',
           autoClose: 2000,
         });
       } else {
-        toast.error(`Fehler: ${result?.error || 'Konnte Ordner nicht öffnen'}`, {
+        toast.error(`${t('error')}: ${result?.error || t('couldNotOpenFolder')}`, {
           position: 'top-center',
           autoClose: 3000,
         });
       }
     } catch (error) {
       console.error('Error opening folder:', error);
-      toast.error(`Fehler: ${error.message}`, {
+      toast.error(`${t('error')}: ${error.message}`, {
         position: 'top-center',
         autoClose: 3000,
       });
@@ -263,7 +265,7 @@ function App() {
               >
                 {/* Hero Section */}
                 <div className="flex-1 p-8 overflow-y-auto scrollbar-hide">
-                  <h1 className="text-4xl font-bold mb-6">Deine Spiele</h1>
+                  <h1 className="text-4xl font-bold mb-6">{t('yourGames')}</h1>
                   
                   {/* Games Grid */}
                   <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
@@ -289,7 +291,7 @@ function App() {
                 transition={{ duration: 0.3 }}
                 className="h-full p-8 overflow-y-auto"
               >
-                <h1 className="text-4xl font-bold mb-8">Bibliothek</h1>
+                <h1 className="text-4xl font-bold mb-8">{t('library')}</h1>
                 <div className="grid grid-cols-2 lg:grid-cols-3 gap-6">
                   {GAMES.map((game) => (
                     <motion.div
@@ -328,42 +330,42 @@ function App() {
                 transition={{ duration: 0.3 }}
                 className="h-full p-8 overflow-y-auto"
               >
-                <h1 className="text-4xl font-bold mb-8">Einstellungen</h1>
+                <h1 className="text-4xl font-bold mb-8">{t('settings')}</h1>
                 
                 {/* Spiel-Einstellungen */}
                 <div className="glass-effect rounded-xl p-6 max-w-3xl mb-6">
                   <h2 className="text-2xl font-bold mb-4 flex items-center space-x-2">
                     <FiSettings className="text-cyan-400" />
-                    <span>Spiel-Einstellungen</span>
+                    <span>{t('gameSettings')}</span>
                   </h2>
                   <div className="space-y-4">
                     {/* Game Info */}
                     <div className="bg-dark-700 rounded-lg p-4">
                       <h3 className="font-semibold mb-3 flex items-center space-x-2">
                         <span>📊</span>
-                        <span>Spielinformationen</span>
+                        <span>{t('gameInfo')}</span>
                       </h3>
                       <div className="space-y-2 text-sm">
                         <div className="flex justify-between">
-                          <span className="text-gray-400">Status:</span>
+                          <span className="text-gray-400">{t('status')}:</span>
                           <span className="font-medium">
                             {isInstalled ? (
-                              <span className="text-green-400">✅ Installiert</span>
+                              <span className="text-green-400">✅ {t('installed')}</span>
                             ) : (
-                              <span className="text-gray-400">❌ Nicht installiert</span>
+                              <span className="text-gray-400">❌ {t('notInstalled')}</span>
                             )}
                           </span>
                         </div>
                         <div className="flex justify-between">
-                          <span className="text-gray-400">Version:</span>
-                          <span className="font-medium">{installedVersion || 'Nicht verfügbar'}</span>
+                          <span className="text-gray-400">{t('version')}:</span>
+                          <span className="font-medium">{installedVersion || t('notAvailable')}</span>
                         </div>
                         <div className="flex justify-between">
-                          <span className="text-gray-400">Installationsort:</span>
-                          <span className="font-medium text-xs">{installPath || 'Nicht verfügbar'}</span>
+                          <span className="text-gray-400">{t('installLocation')}:</span>
+                          <span className="font-medium text-xs">{installPath || t('notAvailable')}</span>
                         </div>
                         <div className="flex justify-between">
-                          <span className="text-gray-400">Letzte Aktualisierung:</span>
+                          <span className="text-gray-400">{t('lastUpdate')}:</span>
                           <span className="font-medium">{new Date().toLocaleDateString('de-DE')}</span>
                         </div>
                       </div>
@@ -373,26 +375,26 @@ function App() {
                     <div className="bg-dark-700 rounded-lg p-4">
                       <h3 className="font-semibold mb-2 flex items-center space-x-2">
                         <span>⏱️</span>
-                        <span>Spielzeit</span>
+                        <span>{t('playtime')}</span>
                       </h3>
                       <div className="text-2xl font-bold text-cyan-400">
                         {Math.floor(playtime / 60)}h {playtime % 60}m
                       </div>
-                      <p className="text-sm text-gray-400 mt-1">Gesamte gespielte Zeit</p>
+                      <p className="text-sm text-gray-400 mt-1">{t('totalPlaytime')}</p>
                     </div>
 
                     {/* Open Game Folder */}
                     <div className="bg-dark-700 rounded-lg p-4">
                       <h3 className="font-semibold mb-2 flex items-center space-x-2">
                         <FiFolder className="text-yellow-400" size={20} />
-                        <span>Spielordner</span>
+                        <span>{t('gameFolder')}</span>
                       </h3>
                       <button 
                         onClick={handleOpenGameFolder}
                         disabled={!installPath || !isInstalled}
                         className="w-full mt-2 px-4 py-2 bg-gradient-to-r from-yellow-500 to-orange-600 hover:shadow-lg hover:shadow-yellow-500/50 rounded-lg font-medium transition-all disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:shadow-none"
                       >
-                        Ordner im Explorer öffnen
+                        {t('openGameFolder')}
                       </button>
                     </div>
 
@@ -400,11 +402,11 @@ function App() {
                     <div className="bg-dark-700 rounded-lg p-4">
                       <h3 className="font-semibold mb-2 flex items-center space-x-2">
                         <span>🔍</span>
-                        <span>Installation prüfen</span>
+                        <span>{t('verifyInstallation')}</span>
                       </h3>
                       <button 
                         onClick={async () => {
-                          const toastId = toast.loading('Installation wird verifiziert...', {
+                          const toastId = toast.loading(t('verifying'), {
                             position: 'top-center',
                           });
                           
@@ -413,14 +415,14 @@ function App() {
                             
                             if (result.valid) {
                               toast.update(toastId, {
-                                render: `✅ Installation vollständig! (${result.filesFound}/${result.requiredFiles} Dateien)`,
+                                render: `✅ ${t('verifySuccess')} (${result.filesFound}/${result.requiredFiles} ${t('filesFound')})`,
                                 type: 'success',
                                 isLoading: false,
                                 autoClose: 3000,
                               });
                             } else {
                               toast.update(toastId, {
-                                render: `❌ Fehlende Dateien: ${result.missingFiles.slice(0, 3).join(', ')}${result.missingFiles.length > 3 ? '...' : ''}`,
+                                render: `❌ ${t('verifyFailed')}: ${result.missingFiles.slice(0, 3).join(', ')}${result.missingFiles.length > 3 ? '...' : ''}`,
                                 type: 'error',
                                 isLoading: false,
                                 autoClose: 5000,
@@ -428,7 +430,7 @@ function App() {
                             }
                           } catch (error) {
                             toast.update(toastId, {
-                              render: '❌ Fehler: ' + error.message,
+                              render: `❌ ${t('error')}: ${error.message}`,
                               type: 'error',
                               isLoading: false,
                               autoClose: 3000,
@@ -438,7 +440,7 @@ function App() {
                         disabled={!installPath || !isInstalled}
                         className="w-full mt-2 px-4 py-2 bg-gradient-to-r from-green-500 to-emerald-600 hover:shadow-lg hover:shadow-green-500/50 rounded-lg font-medium transition-all disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:shadow-none"
                       >
-                        Installation verifizieren
+                        {t('verifyInstallation')}
                       </button>
                     </div>
                   </div>
@@ -448,25 +450,25 @@ function App() {
                 <div className="glass-effect rounded-xl p-6 max-w-3xl">
                   <h2 className="text-2xl font-bold mb-4 flex items-center space-x-2">
                     <span>⚙️</span>
-                    <span>Launcher-Einstellungen</span>
+                    <span>{t('launcherSettings')}</span>
                   </h2>
                   <div className="space-y-6">
                     <div>
-                      <label className="block text-sm font-medium mb-2">Sprache</label>
+                      <label className="block text-sm font-medium mb-2">{t('language')}</label>
                       <select className="w-full bg-dark-700 border border-gray-600 rounded-lg px-4 py-2">
                         <option>Deutsch</option>
                         <option>English</option>
                       </select>
                     </div>
                     <div>
-                      <label className="block text-sm font-medium mb-2">Theme</label>
+                      <label className="block text-sm font-medium mb-2">{t('theme')}</label>
                       <select className="w-full bg-dark-700 border border-gray-600 rounded-lg px-4 py-2">
-                        <option>Dark</option>
-                        <option>Light</option>
+                        <option>{t('dark')}</option>
+                        <option>{t('light')}</option>
                       </select>
                     </div>
                     <div className="flex items-center justify-between">
-                      <span className="text-sm font-medium">Auto-Update</span>
+                      <span className="text-sm font-medium">{t('autoUpdate')}</span>
                       <input type="checkbox" className="toggle" defaultChecked />
                     </div>
                   </div>
@@ -476,29 +478,29 @@ function App() {
                 <div className="glass-effect rounded-xl p-6 max-w-3xl mt-6">
                   <h2 className="text-2xl font-bold mb-4 flex items-center space-x-2">
                     <span>📊</span>
-                    <span>Deine Statistiken</span>
+                    <span>{t('yourStats')}</span>
                   </h2>
                   <div className="grid grid-cols-2 gap-4">
                     <div className="bg-dark-700 rounded-lg p-4">
-                      <p className="text-sm text-gray-400 mb-1">Gesamte Spielzeit</p>
+                      <p className="text-sm text-gray-400 mb-1">{t('totalPlaytime')}</p>
                       <p className="text-2xl font-bold text-cyan-400">{analytics.getStats().totalPlaytime}</p>
                     </div>
                     <div className="bg-dark-700 rounded-lg p-4">
-                      <p className="text-sm text-gray-400 mb-1">Sessions</p>
+                      <p className="text-sm text-gray-400 mb-1">{t('totalSessions')}</p>
                       <p className="text-2xl font-bold text-purple-400">{analytics.getStats().totalSessions}</p>
                     </div>
                     <div className="bg-dark-700 rounded-lg p-4">
-                      <p className="text-sm text-gray-400 mb-1">Achievement Punkte</p>
+                      <p className="text-sm text-gray-400 mb-1">{t('achievementPoints')}</p>
                       <p className="text-2xl font-bold text-yellow-400">{achievementManager.getTotalPoints()}</p>
                     </div>
                     <div className="bg-dark-700 rounded-lg p-4">
-                      <p className="text-sm text-gray-400 mb-1">Tage aktiv</p>
+                      <p className="text-sm text-gray-400 mb-1">{t('daysActive')}</p>
                       <p className="text-2xl font-bold text-green-400">{analytics.getStats().daysActive}</p>
                     </div>
                   </div>
                   <div className="mt-4 p-4 bg-blue-500/10 border border-blue-500/30 rounded-lg">
                     <p className="text-sm text-blue-400">
-                      📊 Alle Daten werden nur lokal gespeichert und niemals an externe Server gesendet.
+                      📊 {t('dataPrivacy')}
                     </p>
                   </div>
                 </div>
@@ -514,9 +516,9 @@ function App() {
                 transition={{ duration: 0.3 }}
                 className="h-full p-8 overflow-y-auto"
               >
-                <h1 className="text-4xl font-bold mb-8">Launch Optionen</h1>
+                <h1 className="text-4xl font-bold mb-8">{t('launchOptions')}</h1>
                 <div className="glass-effect rounded-xl p-6 max-w-3xl">
-                  <p className="text-gray-400 mb-6">Konfiguriere, wie das Spiel gestartet werden soll</p>
+                  <p className="text-gray-400 mb-6">{t('launchOptionsDesc')}</p>
                   
                   <div className="space-y-4">
                     {/* Windowed Mode */}
@@ -524,9 +526,9 @@ function App() {
                       <div className="flex-1">
                         <h3 className="font-semibold mb-1 flex items-center space-x-2">
                           <span>🪟</span>
-                          <span>Fenstermodus</span>
+                          <span>{t('windowedMode')}</span>
                         </h3>
-                        <p className="text-sm text-gray-400">Startet das Spiel im Fenster statt Vollbild</p>
+                        <p className="text-sm text-gray-400">{t('windowedModeDesc')}</p>
                       </div>
                       <label className="relative inline-flex items-center cursor-pointer">
                         <input type="checkbox" className="sr-only peer" />
@@ -539,9 +541,9 @@ function App() {
                       <div className="flex-1">
                         <h3 className="font-semibold mb-1 flex items-center space-x-2">
                           <span>💾</span>
-                          <span>Backup erstellen</span>
+                          <span>{t('createBackup')}</span>
                         </h3>
-                        <p className="text-sm text-gray-400">Erstellt automatisch ein Backup vor dem Start</p>
+                        <p className="text-sm text-gray-400">{t('createBackupDesc')}</p>
                       </div>
                       <label className="relative inline-flex items-center cursor-pointer">
                         <input type="checkbox" className="sr-only peer" />
@@ -552,7 +554,7 @@ function App() {
 
                   <div className="mt-6 p-4 bg-blue-500/10 border border-blue-500/30 rounded-lg">
                     <p className="text-sm text-blue-400">
-                      💡 <strong>Tipp:</strong> Diese Einstellungen werden automatisch beim nächsten Spielstart angewendet.
+                      💡 {t('launchOptionsTip')}
                     </p>
                   </div>
                 </div>
