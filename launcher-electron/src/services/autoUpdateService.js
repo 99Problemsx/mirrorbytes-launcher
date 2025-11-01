@@ -14,12 +14,28 @@ const { getGitHubApiService } = require('./githubApiService');
 class AutoUpdateService {
   constructor(repo = 'Illusion') {
     this.githubApi = getGitHubApiService('99Problemsx', repo);
-    this.currentVersion = '0.2.1'; // TODO: Aus package.json lesen
+    this.currentVersion = this.loadVersionFromPackageJson();
     this.updateCheckInterval = 3600000; // 1 Stunde
     this.updateCheckTimer = null;
     this.isChecking = false;
     this.isDownloading = false;
     this.downloadProgress = 0;
+  }
+
+  /**
+   * Load version from package.json
+   */
+  loadVersionFromPackageJson() {
+    try {
+      // Try to load from app path (production)
+      const packagePath = path.join(app.getAppPath(), 'package.json');
+      const packageData = fsSync.readFileSync(packagePath, 'utf-8');
+      const packageJson = JSON.parse(packageData);
+      return packageJson.version || '0.0.1';
+    } catch (error) {
+      console.error('Failed to load version from package.json:', error);
+      return '0.0.1'; // Fallback version
+    }
   }
 
   /**

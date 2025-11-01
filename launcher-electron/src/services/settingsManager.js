@@ -118,12 +118,40 @@ class SettingsManager {
   }
 
   /**
-   * Importiere Settings von JSON
+   * Importiere Settings von JSON (with validation)
    */
   import(jsonString) {
     try {
       const imported = JSON.parse(jsonString);
-      this.saveAll(imported);
+      
+      // Validate imported settings structure
+      if (typeof imported !== 'object' || imported === null) {
+        throw new Error('Invalid settings format');
+      }
+      
+      // Only import known settings keys to prevent injection
+      const validKeys = Object.keys(this.defaultSettings);
+      const validated = {};
+      
+      for (const key of validKeys) {
+        if (key in imported) {
+          // Type validation
+          const expectedType = typeof this.defaultSettings[key];
+          const actualType = typeof imported[key];
+          
+          if (expectedType === actualType) {
+            validated[key] = imported[key];
+          } else {
+            console.warn(`Skipping invalid setting ${key}: expected ${expectedType}, got ${actualType}`);
+          }
+        }
+      }
+      
+      // Merge with current settings to preserve any missing keys
+      const current = this.getAll();
+      const merged = { ...current, ...validated };
+      
+      this.saveAll(merged);
       this.emit('settingsImported');
       return true;
     } catch (error) {

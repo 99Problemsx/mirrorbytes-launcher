@@ -14,29 +14,52 @@ const fsSync = require('fs');
 
 // Lazy load AdmZip when needed
 let AdmZip = null;
+let admZipLoadFailed = false;
+
 function getAdmZip() {
+  if (admZipLoadFailed) {
+    return null; // Don't retry if it failed once
+  }
+  
   if (!AdmZip) {
     try {
       AdmZip = require('adm-zip');
     } catch (error) {
       console.error('Failed to load adm-zip:', error);
+      admZipLoadFailed = true;
       AdmZip = null;
     }
   }
   return AdmZip;
 }
 
-// Game configurations
+// Game configurations - platform-agnostic paths
 const GAME_CONFIGS = {
   'illusion': {
-    installPath: path.join(app.getPath('home'), 'AppData', 'Local', 'Pokemon Illusion'),
-    exePath: path.join(app.getPath('home'), 'AppData', 'Local', 'Pokemon Illusion', 'Game.exe'),
+    installPath: path.join(
+      process.platform === 'win32' 
+        ? path.join(app.getPath('home'), 'AppData', 'Local', 'Pokemon Illusion')
+        : path.join(app.getPath('home'), '.local', 'share', 'Pokemon Illusion')
+    ),
+    exePath: path.join(
+      process.platform === 'win32'
+        ? path.join(app.getPath('home'), 'AppData', 'Local', 'Pokemon Illusion', 'Game.exe')
+        : path.join(app.getPath('home'), '.local', 'share', 'Pokemon Illusion', 'Game') // Unix executable
+    ),
     saveFolder: 'Pokemon Illusion',
     repo: 'Illusion'
   },
   'zorua': {
-    installPath: path.join(app.getPath('home'), 'AppData', 'Local', 'Zorua The Divine Deception'),
-    exePath: path.join(app.getPath('home'), 'AppData', 'Local', 'Zorua The Divine Deception', 'Game.exe'),
+    installPath: path.join(
+      process.platform === 'win32'
+        ? path.join(app.getPath('home'), 'AppData', 'Local', 'Zorua The Divine Deception')
+        : path.join(app.getPath('home'), '.local', 'share', 'Zorua The Divine Deception')
+    ),
+    exePath: path.join(
+      process.platform === 'win32'
+        ? path.join(app.getPath('home'), 'AppData', 'Local', 'Zorua The Divine Deception', 'Game.exe')
+        : path.join(app.getPath('home'), '.local', 'share', 'Zorua The Divine Deception', 'Game')
+    ),
     saveFolder: 'Zorua The Divine Deception',
     repo: 'Zorua-the-divine-deception'
   }
@@ -89,8 +112,8 @@ function getMysteryGiftService() {
 
 let mainWindow;
 
-// Allow app to quit when window is closed
-let forceQuit = true;
+// Window lifecycle flag - properly managed
+let allowWindowClose = false;
 
 function createWindow() {
   console.log('Creating window...');
@@ -221,15 +244,15 @@ function createWindow() {
   // Log when window is closing
   mainWindow.on('close', (event) => {
     console.log('Window close event triggered');
-    console.log('forceQuit:', forceQuit);
+    console.log('allowWindowClose:', allowWindowClose);
     
-    if (!forceQuit) {
+    if (!allowWindowClose) {
       event.preventDefault();
       console.log('❌ Close prevented! Window will stay open.');
       console.log('Use the X button in the title bar to close.');
       return false;
     }
-    console.log('✅ Force quit enabled, allowing close');
+    console.log('✅ Window close allowed');
   });
 }
 
@@ -344,9 +367,10 @@ app.whenReady().then(() => {
 
 app.on('window-all-closed', () => {
   console.log('All windows closed');
-  // NEVER quit automatically - only when user explicitly closes via X button
-  // This prevents accidental closing
-  console.log('Prevented automatic quit - window will stay open');
+  // On macOS, keep app running; on other platforms quit
+  if (process.platform !== 'darwin') {
+    app.quit();
+  }
 });
 
 app.on('activate', () => {
@@ -363,7 +387,7 @@ app.on('will-quit', () => {
 
 app.on('before-quit', () => {
   console.log('App before quit');
-  forceQuit = true;
+  allowWindowClose = true;
 });
 
 // Handle errors
@@ -392,7 +416,7 @@ ipcMain.handle('window:maximize', () => {
 
 ipcMain.handle('window:close', () => {
   console.log('Close requested via IPC');
-  forceQuit = true;
+  allowWindowClose = true;
   mainWindow?.close();
   app.quit();
 });
@@ -448,24 +472,74 @@ function getGameRepo(gameId) {
   return GAME_CONFIGS[gameId]?.repo || 'Illusion'; // fallback
 }
 
+// Settings file path
+const settingsPath = path.join(app.getPath('userData'), 'settings.json');
+
+// Default settings
+const defaultSettings = {
+  language: 'de',
+  theme: 'dark',
+  autoUpdate: true,
+  discordRPC: true,
+  showNotifications: true
+};
+
+/**
+ * Load settings from file with error handling
+ */
+function loadSettings() {
+  try {
+    if (fsSync.existsSync(settingsPath)) {
+      const data = fsSync.readFileSync(settingsPath, 'utf-8');
+      const parsed = JSON.parse(data);
+      // Merge with defaults for new settings
+      return { ...defaultSettings, ...parsed };
+    }
+  } catch (error) {
+    console.error('Failed to load settings:', error);
+  }
+  return { ...defaultSettings };
+}
+
+/**
+ * Save settings to file with error handling
+ */
+function saveSettings(settings) {
+  try {
+    // Ensure userData directory exists
+    const userDataDir = app.getPath('userData');
+    if (!fsSync.existsSync(userDataDir)) {
+      fsSync.mkdirSync(userDataDir, { recursive: true });
+    }
+    
+    fsSync.writeFileSync(settingsPath, JSON.stringify(settings, null, 2), 'utf-8');
+    return true;
+  } catch (error) {
+    console.error('Failed to save settings:', error);
+    return false;
+  }
+}
+
 ipcMain.handle('settings:get', () => {
-  // TODO: Load settings from file
-  return {
-    language: 'de',
-    theme: 'dark',
-    autoUpdate: true
-  };
+  return loadSettings();
 });
 
 ipcMain.handle('settings:save', (event, settings) => {
-  // TODO: Save settings to file
-  console.log('Saving settings:', settings);
-  return { success: true };
+  const success = saveSettings(settings);
+  return { success };
 });
 
 // Open external URLs (for GitHub releases, etc.)
 ipcMain.handle('shell:openExternal', async (event, url) => {
   try {
+    // Security: Validate URL scheme (only allow http/https)
+    const parsedUrl = new URL(url);
+    const allowedProtocols = ['http:', 'https:'];
+    
+    if (!allowedProtocols.includes(parsedUrl.protocol)) {
+      throw new Error(`Protokoll ${parsedUrl.protocol} ist nicht erlaubt (nur http/https)`);
+    }
+    
     await shell.openExternal(url);
     return { success: true };
   } catch (error) {
@@ -498,6 +572,20 @@ ipcMain.handle('shell:openSaveFolder', async (event, gameId) => {
 ipcMain.handle('shell:openPath', async (event, folderPath) => {
   try {
     console.log('Opening path in explorer:', folderPath);
+    
+    // Security: Validate path is within allowed directories
+    const allowedDirs = [
+      app.getPath('home'),
+      app.getPath('userData'),
+      app.getPath('appData')
+    ];
+    
+    const resolvedPath = path.resolve(folderPath);
+    const isAllowed = allowedDirs.some(dir => resolvedPath.startsWith(path.resolve(dir)));
+    
+    if (!isAllowed) {
+      throw new Error('Zugriff auf diesen Pfad ist nicht erlaubt (Sicherheitseinschränkung)');
+    }
     
     // Check if path exists
     try {
@@ -672,7 +760,7 @@ ipcMain.handle('game:download', async (event, gameId) => {
           console.log('📦 Extracting fallback zip to', installDir);
           const AdmZipClass = getAdmZip();
           if (!AdmZipClass) {
-            throw new Error('adm-zip module not available');
+            throw new Error('ZIP-Extraktion nicht verfügbar. Bitte entpacke die Datei manuell.');
           }
           const zip = new AdmZipClass(fallbackPath);
           zip.extractAllTo(installDir, true);
@@ -763,9 +851,13 @@ function handleDownload(response, downloadPath, fileSize, installDir, isZipFile,
     if (progress > lastProgress) {
       lastProgress = progress;
       
-      // Send progress update to renderer
-      if (mainWindow) {
-        mainWindow.webContents.send('download:progress', progress);
+      // Send progress update to renderer (with null check)
+      if (mainWindow && !mainWindow.isDestroyed()) {
+        try {
+          mainWindow.webContents.send('download:progress', progress);
+        } catch (error) {
+          console.warn('Failed to send progress update:', error.message);
+        }
       }
       
       // Log every 10%
@@ -787,15 +879,19 @@ function handleDownload(response, downloadPath, fileSize, installDir, isZipFile,
       try {
         console.log('📦 ZIP file detected, starting extraction...');
         
-        // Send extraction progress to renderer
-        if (mainWindow) {
-          mainWindow.webContents.send('download:progress', 100);
-          mainWindow.webContents.send('download:extracting', true);
+        // Send extraction progress to renderer (with null check)
+        if (mainWindow && !mainWindow.isDestroyed()) {
+          try {
+            mainWindow.webContents.send('download:progress', 100);
+            mainWindow.webContents.send('download:extracting', true);
+          } catch (error) {
+            console.warn('Failed to send extraction status:', error.message);
+          }
         }
         
         const AdmZipClass = getAdmZip();
         if (!AdmZipClass) {
-          throw new Error('adm-zip module not available');
+          throw new Error('ZIP-Extraktion nicht verfügbar. Bitte entpacke die Datei manuell und platziere sie im Installationsverzeichnis.');
         }
         const zip = new AdmZipClass(downloadPath);
         const zipEntries = zip.getEntries();
@@ -823,8 +919,12 @@ function handleDownload(response, downloadPath, fileSize, installDir, isZipFile,
         console.log('🎮 Game.exe exists after extraction:', gameExists);
         console.log('📍 Expected path:', gameExePath);
         
-        if (mainWindow) {
-          mainWindow.webContents.send('download:extracting', false);
+        if (mainWindow && !mainWindow.isDestroyed()) {
+          try {
+            mainWindow.webContents.send('download:extracting', false);
+          } catch (error) {
+            console.warn('Failed to send extraction complete:', error.message);
+          }
         }
         
         resolve({ 
@@ -1024,13 +1124,13 @@ ipcMain.handle('updates:check', async () => {
   }
 });
 
-ipcMain.handle('updates:download', async (event, updateInfo) => {
+ipcMain.handle('updates:download', async (event, updateInfo, gameId = 'illusion') => {
   try {
     if (!autoUpdateService) {
       throw new Error('Update service not initialized');
     }
     
-    // Get install path from somewhere (could be from settings)
+    // Get install path from game config with gameId parameter
     const installPath = GAME_CONFIGS[gameId]?.installPath || path.join(app.getPath('home'), 'AppData', 'Local', 'Pokemon Illusion');
     
     await autoUpdateService.downloadUpdate(updateInfo, installPath);

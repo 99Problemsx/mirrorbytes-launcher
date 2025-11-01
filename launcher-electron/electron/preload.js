@@ -15,6 +15,10 @@ contextBridge.exposeInMainWorld('electron', {
   checkFileExists: (filePath) => ipcRenderer.invoke('file:exists', filePath),
   readFile: (filePath) => ipcRenderer.invoke('file:read', filePath),
   downloadGame: (gameId, onProgress, onExtracting) => {
+    // Remove any existing listeners to prevent memory leaks
+    ipcRenderer.removeAllListeners('download:progress');
+    ipcRenderer.removeAllListeners('download:extracting');
+    
     // Listen for progress updates
     ipcRenderer.on('download:progress', (event, progress) => {
       if (onProgress) onProgress(progress);
