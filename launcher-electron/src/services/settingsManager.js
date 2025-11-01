@@ -118,7 +118,7 @@ class SettingsManager {
   }
 
   /**
-   * Importiere Settings von JSON (with validation)
+   * Import settings from JSON (with validation)
    */
   import(jsonString) {
     try {

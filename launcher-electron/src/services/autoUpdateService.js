@@ -29,6 +29,8 @@ class AutoUpdateService {
     try {
       // Try to load from app path (production)
       const packagePath = path.join(app.getAppPath(), 'package.json');
+      // Use synchronous read for simplicity during constructor
+      // This is acceptable as it only runs once at service initialization
       const packageData = fsSync.readFileSync(packagePath, 'utf-8');
       const packageJson = JSON.parse(packageData);
       return packageJson.version || '0.0.1';

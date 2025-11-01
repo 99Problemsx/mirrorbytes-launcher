@@ -537,7 +537,7 @@ ipcMain.handle('shell:openExternal', async (event, url) => {
     const allowedProtocols = ['http:', 'https:'];
     
     if (!allowedProtocols.includes(parsedUrl.protocol)) {
-      throw new Error(`Protokoll ${parsedUrl.protocol} ist nicht erlaubt (nur http/https)`);
+      throw new Error(`Protocol ${parsedUrl.protocol} not allowed (only http/https)`);
     }
     
     await shell.openExternal(url);
@@ -584,7 +584,7 @@ ipcMain.handle('shell:openPath', async (event, folderPath) => {
     const isAllowed = allowedDirs.some(dir => resolvedPath.startsWith(path.resolve(dir)));
     
     if (!isAllowed) {
-      throw new Error('Zugriff auf diesen Pfad ist nicht erlaubt (Sicherheitseinschränkung)');
+      throw new Error('Access to this path is not allowed (security restriction)');
     }
     
     // Check if path exists

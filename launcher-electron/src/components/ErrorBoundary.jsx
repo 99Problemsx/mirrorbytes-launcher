@@ -98,7 +98,14 @@ class ErrorBoundary extends React.Component {
                 Try Again
               </button>
               <button
-                onClick={() => window.location.reload()}
+                onClick={() => {
+                  // Use IPC to properly restart the app if available
+                  if (window.electron?.closeWindow) {
+                    window.electron.closeWindow();
+                  } else {
+                    window.location.reload();
+                  }
+                }}
                 className="flex-1 bg-gray-700 hover:bg-gray-600 text-white font-semibold py-3 px-6 rounded-lg transition-colors"
               >
                 Reload Launcher
