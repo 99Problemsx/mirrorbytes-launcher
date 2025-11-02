@@ -407,6 +407,10 @@ export const translations = {
     active: 'Aktiv',
     inactive: 'Inaktiv',
     resetStatistics: 'Statistiken zurücksetzen',
+    newsFeed: 'News-Feed',
+    newsFeedDescription: 'Hier findest du alle wichtigen Neuigkeiten zu deinen Spielen. Der Feed wird alle 30 Minuten automatisch aktualisiert und zeigt GitHub Releases, Commits und wichtige Ankündigungen.',
+    loadingNews: 'Lade News...',
+    noNewsAvailable: 'Keine News verfügbar',
     
     // Errors & Messages
     error: 'Fehler',
@@ -844,6 +848,10 @@ export const translations = {
     active: 'Active',
     inactive: 'Inactive',
     resetStatistics: 'Reset Statistics',
+    newsFeed: 'News Feed',
+    newsFeedDescription: 'Here you can find all important news about your games. The feed is automatically updated every 30 minutes and shows GitHub Releases, Commits and important announcements.',
+    loadingNews: 'Loading News...',
+    noNewsAvailable: 'No News available',
     
     // Errors & Messages
     error: 'Error',

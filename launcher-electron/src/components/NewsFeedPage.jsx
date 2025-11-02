@@ -3,8 +3,10 @@ import { motion } from 'framer-motion';
 import { FiRefreshCw, FiExternalLink, FiGithub, FiAlertCircle } from 'react-icons/fi';
 import NewsFeedService from '../services/newsFeedService';
 import { toast } from 'react-toastify';
+import { useTranslation } from '../i18n/translations';
 
 const NewsFeedPage = ({ selectedGame }) => {
+  const { t } = useTranslation();
   const [newsFeed] = useState(() => new NewsFeedService(selectedGame.repo));
   const [news, setNews] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -100,9 +102,9 @@ const NewsFeedPage = ({ selectedGame }) => {
           <div className="flex items-start space-x-4">
             <div className="text-4xl">ℹ️</div>
             <div className="flex-1">
-              <h3 className="text-lg font-bold text-blue-400 mb-2">News-Feed</h3>
+              <h3 className="text-lg font-bold text-blue-400 mb-2">{t('newsFeed')}</h3>
               <p className="text-sm text-gray-300">
-                Hier findest du alle wichtigen Neuigkeiten zu deinen Spielen. Der Feed wird alle 30 Minuten automatisch aktualisiert und zeigt GitHub Releases, Commits und wichtige Ankündigungen.
+                {t('newsFeedDescription')}
               </p>
             </div>
           </div>
@@ -112,7 +114,7 @@ const NewsFeedPage = ({ selectedGame }) => {
         {loading && news.length === 0 && (
           <div className="flex flex-col items-center justify-center py-20">
             <div className="animate-spin text-6xl mb-4">⏳</div>
-            <p className="text-gray-400 text-lg">Lade News...</p>
+            <p className="text-gray-400 text-lg">{t('loadingNews')}</p>
           </div>
         )}
 
@@ -120,7 +122,7 @@ const NewsFeedPage = ({ selectedGame }) => {
         {!loading && news.length === 0 && (
           <div className="flex flex-col items-center justify-center py-20">
             <div className="text-6xl mb-4">📭</div>
-            <p className="text-gray-400 text-lg">Keine News verfügbar</p>
+            <p className="text-gray-400 text-lg">{t('noNewsAvailable')}</p>
           </div>
         )}
 
