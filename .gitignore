@@ -74,6 +74,10 @@ launcher-electron/out/
 .env.development
 *.env
 
+# Game-specific configuration (NEVER commit for Open Source!)
+launcher-electron/games.config.json
+launcher-electron/mystery-gifts.config.json
+
 # Development
 .vscode/
 .idea/

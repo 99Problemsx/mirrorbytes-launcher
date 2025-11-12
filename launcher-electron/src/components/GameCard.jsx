@@ -452,8 +452,8 @@ const GameCard = ({ game }) => {
                     </motion.div>
                     <span>
                       {isExtracting 
-                        ? 'Wird extrahiert... 📦' 
-                        : `Wird heruntergeladen... ${Math.round(downloadProgress)}%`
+                        ? `${t('extracting')} 📦`
+                        : `${t('downloading')} ${Math.round(downloadProgress)}%`
                       }
                     </span>
                   </div>

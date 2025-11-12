@@ -327,7 +327,7 @@ const UpdatesPage = ({ selectedGame }) => {
               </div>
               {index !== 0 && (
                 <button className="text-sm text-blue-400 hover:text-blue-300 transition-colors">
-                  Rollback
+                  {t('rollback')}
                 </button>
               )}
             </div>
@@ -364,12 +364,12 @@ const UpdatesPage = ({ selectedGame }) => {
                   </div>
                   {!release.prerelease && (
                     <span className="px-3 py-1 bg-green-500/20 text-green-400 rounded-full text-sm font-medium">
-                      Stable
+                      {t('stable')}
                     </span>
                   )}
                   {release.prerelease && (
                     <span className="px-3 py-1 bg-yellow-500/20 text-yellow-400 rounded-full text-sm font-medium">
-                      Pre-Release
+                      {t('preRelease')}
                     </span>
                   )}
                 </div>

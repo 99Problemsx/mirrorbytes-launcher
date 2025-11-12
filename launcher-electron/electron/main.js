@@ -26,21 +26,46 @@ function getAdmZip() {
   return AdmZip;
 }
 
-// Game configurations
-const GAME_CONFIGS = {
-  'illusion': {
-    installPath: path.join(app.getPath('home'), 'AppData', 'Local', 'Pokemon Illusion'),
-    exePath: path.join(app.getPath('home'), 'AppData', 'Local', 'Pokemon Illusion', 'Game.exe'),
-    saveFolder: 'Pokemon Illusion',
-    repo: 'Illusion'
-  },
-  'zorua': {
-    installPath: path.join(app.getPath('home'), 'AppData', 'Local', 'Zorua The Divine Deception'),
-    exePath: path.join(app.getPath('home'), 'AppData', 'Local', 'Zorua The Divine Deception', 'Game.exe'),
-    saveFolder: 'Zorua The Divine Deception',
-    repo: 'Zorua-the-divine-deception'
+// Load game configurations
+let GAME_CONFIGS = {};
+let gamesConfig = null;
+
+function loadGamesConfig() {
+  try {
+    const configPath = path.join(__dirname, '..', 'games.config.json');
+    const configData = fsSync.readFileSync(configPath, 'utf-8');
+    gamesConfig = JSON.parse(configData);
+    
+    // Build GAME_CONFIGS from games.config.json
+    gamesConfig.games.forEach(game => {
+      GAME_CONFIGS[game.id] = {
+        installPath: path.join(app.getPath('home'), 'AppData', 'Local', game.installPath),
+        exePath: path.join(app.getPath('home'), 'AppData', 'Local', game.installPath, game.exeName),
+        saveFolder: game.saveFolder,
+        repo: game.repo.name,
+        repoOwner: game.repo.owner
+      };
+    });
+    
+    console.log('✅ Games config loaded:', Object.keys(GAME_CONFIGS));
+  } catch (error) {
+    console.error('❌ Failed to load games.config.json:', error.message);
+    console.log('⚠️ Please copy games.config.example.json to games.config.json and configure your games!');
+    
+    // Fallback to example config
+    try {
+      const examplePath = path.join(__dirname, '..', 'games.config.example.json');
+      const exampleData = fsSync.readFileSync(examplePath, 'utf-8');
+      gamesConfig = JSON.parse(exampleData);
+      console.log('📋 Using example config as fallback');
+    } catch (fallbackError) {
+      console.error('❌ Could not load example config either:', fallbackError.message);
+    }
   }
-};
+}
+
+// Load configs at startup
+loadGamesConfig();
 
 // Import services - with error handling for production builds
 let discordService = null;
@@ -445,7 +470,15 @@ function getGamePath(gameId) {
 }
 
 function getGameRepo(gameId) {
-  return GAME_CONFIGS[gameId]?.repo || 'Illusion'; // fallback
+  const config = GAME_CONFIGS[gameId];
+  if (!config) return 'Illusion'; // fallback
+  return config.repo;
+}
+
+function getGameRepoOwner(gameId) {
+  const config = GAME_CONFIGS[gameId];
+  if (!config) return '99Problemsx'; // fallback
+  return config.repoOwner || '99Problemsx';
 }
 
 ipcMain.handle('settings:get', () => {
@@ -557,8 +590,9 @@ ipcMain.handle('file:exists', async (event, filePath) => {
 ipcMain.handle('game:download', async (event, gameId) => {
   try {
     const repo = getGameRepo(gameId);
+    const owner = getGameRepoOwner(gameId);
     console.log('🚀 Starting download for game:', gameId);
-    console.log('📦 Fetching latest release from: https://github.com/99Problemsx/' + repo + '/releases');
+    console.log(`📦 Fetching latest release from: https://github.com/${owner}/${repo}/releases`);
     
     // Get latest release from GitHub
     const ghHeaders = {
@@ -567,7 +601,7 @@ ipcMain.handle('game:download', async (event, gameId) => {
     if (process.env.GITHUB_TOKEN) {
       ghHeaders['Authorization'] = `token ${process.env.GITHUB_TOKEN}`;
     }
-    const response = await fetch('https://api.github.com/repos/99Problemsx/' + repo + '/releases/latest', { headers: ghHeaders });
+    const response = await fetch(`https://api.github.com/repos/${owner}/${repo}/releases/latest`, { headers: ghHeaders });
     
     if (!response.ok) {
       // If rate limited, provide reset info when available
@@ -690,7 +724,7 @@ ipcMain.handle('game:download', async (event, gameId) => {
       }
 
       console.error('❌ No suitable asset found in release');
-      throw new Error(`Keine Game.exe oder .zip Datei im neuesten Release gefunden.\n\nUm das Spiel herunterzuladen:\n1. Gehe zu: https://github.com/99Problemsx/${repo}/releases/tag/${release.tag_name}\n2. Klicke auf "Edit" (Bearbeiten)\n3. Lade deine Spiel-Zip-Datei als Asset hoch\n4. Aktualisiere das Release\n\nAlternativ kannst du das Spiel manuell installieren.`);
+      throw new Error(`Keine Game.exe oder .zip Datei im neuesten Release gefunden.\n\nUm das Spiel herunterzuladen:\n1. Gehe zu: https://github.com/${owner}/${repo}/releases/tag/${release.tag_name}\n2. Klicke auf "Edit" (Bearbeiten)\n3. Lade deine Spiel-Zip-Datei als Asset hoch\n4. Aktualisiere das Release\n\nAlternativ kannst du das Spiel manuell installieren.`);
     }
 
     console.log('📥 Selected asset:', asset.name, `(${(asset.size / 1024 / 1024).toFixed(2)} MB)`);

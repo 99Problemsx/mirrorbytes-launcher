@@ -29,33 +29,24 @@ import ThemeSystem from './services/themeSystem';
 import statisticsService from './services/statisticsService';
 import useKeyboardShortcuts, { ShortcutsHelp } from './hooks/useKeyboardShortcuts';
 
+// Import games config
+import gamesConfigData from '../games.config.json';
+
 function App() {
   const { t } = useTranslation();
   
-  // Games configuration (descriptions will be translated dynamically)
-  const GAMES = [
-    {
-      id: 'illusion',
-      name: 'Pokémon Illusion',
-      description: t('illusionDesc'),
-      version: 'v1.0.0',
-      image: '/assets/games/illusion-cover.jpg',
-      repo: 'Illusion',
-      status: 'not-installed', // Status wird dynamisch geprüft
-      playTime: '0h 0m', // Wird nach Installation aktualisiert
-    },
-    {
-      id: 'zorua',
-      name: 'Zorua: The Divine Deception',
-      description: t('zoruaDesc'),
-      version: 'v1.0.0',
-      image: '/assets/games/zorua-cover.jpg',
-      repo: 'Zorua-the-divine-deception',
-      status: 'not-installed', // Status wird dynamisch geprüft
-      playTime: '0h 0m', // Wird nach Installation aktualisiert
-    },
-    // Add more games here in the future
-  ];
+  // Load games from external config
+  const GAMES = gamesConfigData.games.map(game => ({
+    id: game.id,
+    name: game.name,
+    description: t(game.descriptionKey),
+    version: game.version,
+    image: game.coverImage,
+    repo: game.repo.name,
+    status: 'not-installed', // Status wird dynamisch geprüft
+    playTime: '0h 0m', // Wird nach Installation aktualisiert
+  }));
+  
   const [selectedGame, setSelectedGame] = useState(GAMES[0]);
   const [activeSection, setActiveSection] = useState('home');
   const [updateInfo, setUpdateInfo] = useState(null);
@@ -501,60 +492,6 @@ function App() {
                   <div className="mt-4 p-4 bg-blue-500/10 border border-blue-500/30 rounded-lg">
                     <p className="text-sm text-blue-400">
                       📊 {t('dataPrivacy')}
-                    </p>
-                  </div>
-                </div>
-              </motion.div>
-            )}
-
-            {activeSection === 'launchoptions' && (
-              <motion.div
-                key="launchoptions"
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -20 }}
-                transition={{ duration: 0.3 }}
-                className="h-full p-8 overflow-y-auto"
-              >
-                <h1 className="text-4xl font-bold mb-8">{t('launchOptions')}</h1>
-                <div className="glass-effect rounded-xl p-6 max-w-3xl">
-                  <p className="text-gray-400 mb-6">{t('launchOptionsDesc')}</p>
-                  
-                  <div className="space-y-4">
-                    {/* Windowed Mode */}
-                    <div className="bg-dark-700 rounded-lg p-4 flex items-start space-x-4">
-                      <div className="flex-1">
-                        <h3 className="font-semibold mb-1 flex items-center space-x-2">
-                          <span>🪟</span>
-                          <span>{t('windowedMode')}</span>
-                        </h3>
-                        <p className="text-sm text-gray-400">{t('windowedModeDesc')}</p>
-                      </div>
-                      <label className="relative inline-flex items-center cursor-pointer">
-                        <input type="checkbox" className="sr-only peer" />
-                        <div className="w-11 h-6 bg-gray-600 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-cyan-500"></div>
-                      </label>
-                    </div>
-
-                    {/* Backup */}
-                    <div className="bg-dark-700 rounded-lg p-4 flex items-start space-x-4">
-                      <div className="flex-1">
-                        <h3 className="font-semibold mb-1 flex items-center space-x-2">
-                          <span>💾</span>
-                          <span>{t('createBackup')}</span>
-                        </h3>
-                        <p className="text-sm text-gray-400">{t('createBackupDesc')}</p>
-                      </div>
-                      <label className="relative inline-flex items-center cursor-pointer">
-                        <input type="checkbox" className="sr-only peer" />
-                        <div className="w-11 h-6 bg-gray-600 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-cyan-500"></div>
-                      </label>
-                    </div>
-                  </div>
-
-                  <div className="mt-6 p-4 bg-blue-500/10 border border-blue-500/30 rounded-lg">
-                    <p className="text-sm text-blue-400">
-                      💡 {t('launchOptionsTip')}
                     </p>
                   </div>
                 </div>

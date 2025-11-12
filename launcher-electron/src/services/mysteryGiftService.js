@@ -51,34 +51,30 @@ class MysteryGiftService {
    * Hole Gift-Daten für einen Code
    */
   getGiftData(code) {
-    const gifts = {
-      'ILLUSION2025': {
-        type: 'items',
-        items: [
-          { item: 'POKEBALL', quantity: 10 },
-          { item: 'MONEY', quantity: 5000 }
-        ]
-      },
-      'DISCORD100': {
-        type: 'pokemon',
-        pokemon: {
-          species: 'PIKACHU',
-          level: 5,
-          shiny: true,
-          item: null,
-          moves: ['THUNDERSHOCK', 'GROWL']
-        }
-      },
-      'BETA': {
-        type: 'items',
-        items: [
-          { item: 'BETA_BADGE', quantity: 1 },
-          { item: 'MONEY', quantity: 1000 }
-        ]
+    // Load gifts from external config file
+    try {
+      // Try to load from mystery-gifts.config.json (user's custom config)
+      const configPath = require('path').join(__dirname, '../../mystery-gifts.config.json');
+      const fs = require('fs');
+      
+      if (fs.existsSync(configPath)) {
+        const config = JSON.parse(fs.readFileSync(configPath, 'utf-8'));
+        return config.gifts[code] || null;
       }
-    };
-
-    return gifts[code] || null;
+      
+      // Fallback to example config
+      const examplePath = require('path').join(__dirname, '../../mystery-gifts.config.example.json');
+      if (fs.existsSync(examplePath)) {
+        const config = JSON.parse(fs.readFileSync(examplePath, 'utf-8'));
+        return config.gifts[code] || null;
+      }
+      
+      console.warn('⚠️ No mystery-gifts.config.json found. Please create one based on mystery-gifts.config.example.json');
+      return null;
+    } catch (error) {
+      console.error('Failed to load mystery gifts config:', error);
+      return null;
+    }
   }
 
   /**

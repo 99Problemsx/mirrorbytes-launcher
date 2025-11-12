@@ -2,20 +2,23 @@ import React from 'react';
 import { motion } from 'framer-motion';
 import { FiHome, FiGrid, FiSettings, FiGift, FiTerminal, FiAward, FiFileText, FiCalendar, FiTarget, FiRss, FiDroplet, FiSave, FiBarChart2, FiDownload } from 'react-icons/fi';
 import { SiDiscord } from 'react-icons/si';
+import { useTranslation } from '../i18n/translations';
 
 const Sidebar = ({ games, selectedGame, onSelectGame, activeSection, onSectionChange }) => {
+  const { t } = useTranslation();
+  
   const menuItems = [
-    { id: 'home', icon: FiHome, label: 'Home', shortcut: 'Alt+1' },
-    { id: 'library', icon: FiGrid, label: 'Bibliothek', shortcut: 'Alt+2' },
-    { id: 'updates', icon: FiDownload, label: 'News & Updates', shortcut: 'Alt+3' },
-    { id: 'dailylogin', icon: FiCalendar, label: 'Daily Rewards', shortcut: 'Alt+4' },
-    { id: 'achievements', icon: FiAward, label: 'Belohnungen', shortcut: 'Alt+5' },
-    { id: 'backup', icon: FiSave, label: 'Backups', shortcut: 'Alt+6' },
-    { id: 'statistics', icon: FiBarChart2, label: 'Statistiken', shortcut: 'Alt+7' },
+    { id: 'home', icon: FiHome, label: t('home'), shortcut: 'Alt+1' },
+    { id: 'library', icon: FiGrid, label: t('library'), shortcut: 'Alt+2' },
+    { id: 'updates', icon: FiDownload, label: t('newsUpdates'), shortcut: 'Alt+3' },
+    { id: 'dailylogin', icon: FiCalendar, label: t('dailyRewards'), shortcut: 'Alt+4' },
+    { id: 'achievements', icon: FiAward, label: t('achievementsTitle'), shortcut: 'Alt+5' },
+    { id: 'backup', icon: FiSave, label: t('backups'), shortcut: 'Alt+6' },
+    { id: 'statistics', icon: FiBarChart2, label: t('statistics'), shortcut: 'Alt+7' },
     { id: 'discord', icon: SiDiscord, label: 'Discord', shortcut: 'Alt+8' },
-    { id: 'themes', icon: FiDroplet, label: 'Themes', shortcut: 'Alt+9' },
-    { id: 'launchoptions', icon: FiTerminal, label: 'Launch Optionen' },
-    { id: 'settings', icon: FiSettings, label: 'Einstellungen' },
+    { id: 'themes', icon: FiDroplet, label: t('themesAndDesigns'), shortcut: 'Alt+9' },
+    { id: 'launchoptions', icon: FiTerminal, label: t('launchOptions') },
+    { id: 'settings', icon: FiSettings, label: t('settings') },
   ];
 
   return (

@@ -3,47 +3,21 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { FiAward, FiStar, FiLock, FiGift } from 'react-icons/fi';
 import { toast } from 'react-toastify';
 import { useTranslation } from '../i18n/translations';
+import gamesConfigData from '../../games.config.json';
 
-// Games list
-const GAMES = [
-  { id: 'illusion', name: 'Pokémon Illusion', color: 'cyan' },
-  { id: 'zorua', name: 'Zorua: Divine Deception', color: 'purple' }
-];
+// Load games from external config
+const GAMES = gamesConfigData.games.map(game => ({
+  id: game.id,
+  name: game.name,
+  color: 'cyan' // Default color, can be added to config later
+}));
 
-// Verfügbare Mystery Gift Codes pro Spiel
+// Example Mystery Gift Codes for UI display
+// Note: Actual codes are loaded from mystery-gifts.config.json
+// These are just for showing the UI structure
 const MYSTERY_CODES = {
-  illusion: {
-    'ILLUSION2025': {
-      name: 'Launch Bonus',
-      description: '5000 Pokédollar + 10 Pokébälle',
-      rewards: ['5000$', '10x Pokéball'],
-      icon: '💰',
-      expires: null
-    },
-    'DISCORD100': {
-      name: 'Discord Special',
-      description: 'Seltenes Shiny Pokémon',
-      rewards: ['Shiny Pokémon'],
-      icon: '✨',
-      expires: null
-    }
-  },
-  zorua: {
-    'ZORUA2025': {
-      name: 'Zorua Launch',
-      description: '3000 Pokédollar + 5 Hyperbälle',
-      rewards: ['3000$', '5x Hyperball'],
-      icon: '💰',
-      expires: null
-    },
-    'DIVINE': {
-      name: 'Divine Gift',
-      description: 'Mysteriöses Item',
-      rewards: ['Divine Stone'],
-      icon: '💎',
-      expires: null
-    }
-  }
+  // Examples will be generated dynamically from games config
+  // Add your codes to mystery-gifts.config.json
 };
 
 // Function to get translated achievements

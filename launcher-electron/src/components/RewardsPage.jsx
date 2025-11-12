@@ -3,8 +3,10 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { FiGift, FiCopy, FiCheck, FiLock, FiStar } from 'react-icons/fi';
 import { RewardSystem, getAllRewardsWithStatus } from '../services/rewardSystem';
 import { AchievementManager } from '../services/achievementManager';
+import { useTranslation } from '../i18n/translations';
 
 const RewardsPage = ({ selectedGame }) => {
+  const { t } = useTranslation();
   const [rewards, setRewards] = useState([]);
   const [selectedReward, setSelectedReward] = useState(null);
   const [copiedCode, setCopiedCode] = useState(null);
@@ -65,10 +67,10 @@ const RewardsPage = ({ selectedGame }) => {
         <div className="mb-8">
           <h1 className="text-4xl font-bold mb-2 flex items-center space-x-3">
             <FiGift className="text-pink-400" size={32} />
-            <span>Mystery Gifts</span>
+            <span>{t('mysteryGiftsTitle')}</span>
           </h1>
           <p className="text-gray-400">
-            Schalte Belohnungen frei und erhalte exklusive Items & Pokémon!
+            {t('rewardsPageDesc')}
           </p>
         </div>
 
@@ -77,13 +79,13 @@ const RewardsPage = ({ selectedGame }) => {
           <div className="flex items-start space-x-4">
             <div className="text-4xl">💡</div>
             <div className="flex-1">
-              <h3 className="text-lg font-bold text-pink-400 mb-2">So funktioniert's:</h3>
+              <h3 className="text-lg font-bold text-pink-400 mb-2">{t('howItWorks')}</h3>
               <ol className="text-sm text-gray-300 space-y-1 list-decimal list-inside">
-                <li>Sammle Achievement-Punkte und schalte Achievements frei</li>
-                <li>Erfülle die Anforderungen für Belohnungen</li>
-                <li>Klicke auf "Einlösen" um deinen Mystery Gift Code zu erhalten</li>
-                <li>Öffne das Spiel und gehe zum Mystery Gift NPC</li>
-                <li>Gib den Code ein und erhalte deine Belohnung! 🎁</li>
+                <li>{t('rewardStep1')}</li>
+                <li>{t('rewardStep2')}</li>
+                <li>{t('rewardStep3')}</li>
+                <li>{t('rewardStep4')}</li>
+                <li>{t('rewardStep5')}</li>
               </ol>
             </div>
           </div>
@@ -92,19 +94,19 @@ const RewardsPage = ({ selectedGame }) => {
         {/* Stats */}
         <div className="grid grid-cols-3 gap-4 mb-8">
           <div className="glass-effect rounded-xl p-4 text-center">
-            <p className="text-sm text-gray-400 mb-1">Verfügbar</p>
+            <p className="text-sm text-gray-400 mb-1">{t('available')}</p>
             <p className="text-3xl font-bold text-green-400">
               {rewards.filter(r => r.status === 'available').length}
             </p>
           </div>
           <div className="glass-effect rounded-xl p-4 text-center">
-            <p className="text-sm text-gray-400 mb-1">Eingelöst</p>
+            <p className="text-sm text-gray-400 mb-1">{t('claimed')}</p>
             <p className="text-3xl font-bold text-blue-400">
               {rewards.filter(r => r.status === 'claimed').length}
             </p>
           </div>
           <div className="glass-effect rounded-xl p-4 text-center">
-            <p className="text-sm text-gray-400 mb-1">Gesperrt</p>
+            <p className="text-sm text-gray-400 mb-1">{t('locked')}</p>
             <p className="text-3xl font-bold text-gray-400">
               {rewards.filter(r => r.status === 'locked').length}
             </p>
@@ -264,16 +266,16 @@ const RewardsPage = ({ selectedGame }) => {
                     onClick={confirmClaim}
                     className="w-full py-3 bg-gradient-to-r from-green-500 to-emerald-600 hover:shadow-lg hover:shadow-green-500/50 rounded-xl font-bold text-lg transition-all mb-4"
                   >
-                    ✨ Belohnung einlösen
+                    ✨ {t('claimReward')}
                   </button>
                 ) : (
                   <div className="bg-gradient-to-br from-cyan-500/20 to-blue-500/20 border-2 border-cyan-500/50 rounded-xl p-4 mb-4">
                     <p className="text-sm text-gray-300 mb-3 text-center">
                       <FiCheck className="inline mr-1 text-green-400" />
-                      Belohnung bereits eingelöst!
+                      {t('rewardAlreadyClaimed')}
                     </p>
                     <div className="bg-dark-800 rounded-lg p-3 mb-3">
-                      <p className="text-xs text-gray-400 mb-2 text-center">Dein Mystery Gift Code:</p>
+                      <p className="text-xs text-gray-400 mb-2 text-center">{t('yourMysteryGiftCode')}</p>
                       <div className="flex items-center space-x-2">
                         <input
                           type="text"
@@ -284,7 +286,7 @@ const RewardsPage = ({ selectedGame }) => {
                         <button
                           onClick={() => copyToClipboard(selectedReward.mysteryGiftCode)}
                           className="p-2 bg-cyan-500 hover:bg-cyan-400 rounded-lg transition-all"
-                          title="Code kopieren"
+                          title={t('copyCode')}
                         >
                           {copiedCode === selectedReward.mysteryGiftCode ? (
                             <FiCheck size={20} />
@@ -294,7 +296,7 @@ const RewardsPage = ({ selectedGame }) => {
                         </button>
                       </div>
                       {copiedCode === selectedReward.mysteryGiftCode && (
-                        <p className="text-xs text-green-400 mt-2 text-center animate-pulse">✓ Code kopiert!</p>
+                        <p className="text-xs text-green-400 mt-2 text-center animate-pulse">✓ {t('codeCopied')}</p>
                       )}
                     </div>
                   </div>
@@ -303,13 +305,13 @@ const RewardsPage = ({ selectedGame }) => {
                 {selectedReward.isClaimed && (
                   <div className="bg-blue-500/10 border border-blue-500/30 rounded-lg p-4 mb-4">
                     <p className="text-sm text-blue-300">
-                      💡 <strong>So verwendest du den Code:</strong><br/>
+                      💡 <strong>{t('howToRedeem')}</strong><br/>
                       <span className="text-gray-400">
-                      1. Öffne <strong>{selectedGame.name}</strong><br/>
-                      2. Gehe zum <strong>Mystery Gift NPC</strong><br/>
-                      3. Wähle "<strong>Code eingeben</strong>"<br/>
-                      4. Gib diesen Code ein: <span className="font-mono font-bold text-cyan-300">{selectedReward.mysteryGiftCode}</span><br/>
-                      5. Genieße deine Belohnung! 🎉
+                      {t('gameInstruction1')}<br/>
+                      {t('gameInstruction2')}<br/>
+                      {t('gameInstruction3')}<br/>
+                      {t('gameInstruction4')}: <span className="font-mono font-bold text-cyan-300">{selectedReward.mysteryGiftCode}</span><br/>
+                      {t('gameInstruction5')}
                       </span>
                     </p>
                   </div>
