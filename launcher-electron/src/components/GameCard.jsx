@@ -51,7 +51,17 @@ const GameCard = ({ game }) => {
     checkGameInstalled();
     loadInstallPath();
     loadPlaytime();
+    loadDownloadState();
   }, [game.id]);
+
+  // Load download state from localStorage
+  const loadDownloadState = () => {
+    const downloadState = localStorage.getItem(`${game.id}_downloading`);
+    if (downloadState === 'true') {
+      // Download was in progress, check if it completed
+      checkGameInstalled();
+    }
+  };
 
   // Update playtime display every minute when game is running
   useEffect(() => {
@@ -119,6 +129,14 @@ const GameCard = ({ game }) => {
 
       const exists = await window.electron.checkFileExists(path);
       console.log('Game exists:', exists);
+      
+      // Persist installation status
+      if (exists) {
+        localStorage.setItem(`${game.id}_installed`, 'true');
+      } else {
+        localStorage.removeItem(`${game.id}_installed`);
+      }
+      
       setIsInstalled(exists);
       setInstallPath(path); // Save the actual install path
       
@@ -192,6 +210,9 @@ const GameCard = ({ game }) => {
     setIsDownloading(true);
     setIsExtracting(false);
     setDownloadProgress(0);
+    
+    // Persist download state
+    localStorage.setItem(`${game.id}_downloading`, 'true');
 
     if (isRetry) {
       addToast(`${t('retry')} ${retryCount + 1}/3...`, 'info', 3000);
@@ -232,6 +253,11 @@ const GameCard = ({ game }) => {
         if (result.extracted) {
           console.log('📦 ZIP file extracted automatically');
         }
+        
+        // Clear download state and mark as installed
+        localStorage.removeItem(`${game.id}_downloading`);
+        localStorage.setItem(`${game.id}_installed`, 'true');
+        
         setIsInstalled(true);
         setRetryCount(0);
         addToast(`✅ ${t('downloadSuccess')}`, 'success', 4000);
@@ -271,6 +297,8 @@ const GameCard = ({ game }) => {
     } finally {
       setIsDownloading(false);
       setDownloadProgress(0);
+      // Clear download state on error too
+      localStorage.removeItem(`${game.id}_downloading`);
     }
   };
 
@@ -286,6 +314,11 @@ const GameCard = ({ game }) => {
       
       if (result?.success) {
         console.log('✅ Game uninstalled successfully');
+        
+        // Clear installation state
+        localStorage.removeItem(`${game.id}_installed`);
+        localStorage.removeItem(`${game.id}_downloading`);
+        
         setIsInstalled(false);
         setInstallPath('');
         setInstalledVersion(game.version);

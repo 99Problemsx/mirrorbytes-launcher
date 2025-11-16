@@ -26,6 +26,15 @@ function getAdmZip() {
   return AdmZip;
 }
 
+// Cross-platform path helper
+function getGameInstallBase() {
+  // Use userData directory which is cross-platform
+  // Windows: C:\Users\<user>\AppData\Roaming\<app name>
+  // macOS: ~/Library/Application Support/<app name>
+  // Linux: ~/.config/<app name>
+  return path.join(app.getPath('userData'), 'Games');
+}
+
 // Load game configurations
 let GAME_CONFIGS = {};
 let gamesConfig = null;
@@ -36,11 +45,11 @@ function loadGamesConfig() {
     const configData = fsSync.readFileSync(configPath, 'utf-8');
     gamesConfig = JSON.parse(configData);
     
-    // Build GAME_CONFIGS from games.config.json
+    // Build GAME_CONFIGS from games.config.json with cross-platform paths
     gamesConfig.games.forEach(game => {
       GAME_CONFIGS[game.id] = {
-        installPath: path.join(app.getPath('home'), 'AppData', 'Local', game.installPath),
-        exePath: path.join(app.getPath('home'), 'AppData', 'Local', game.installPath, game.exeName),
+        installPath: path.join(getGameInstallBase(), game.installPath),
+        exePath: path.join(getGameInstallBase(), game.installPath, game.exeName),
         saveFolder: game.saveFolder,
         repo: game.repo.name,
         repoOwner: game.repo.owner
@@ -510,7 +519,7 @@ ipcMain.handle('shell:openExternal', async (event, url) => {
 // Open save folder in explorer
 ipcMain.handle('shell:openSaveFolder', async (event, gameId) => {
   try {
-    const saveFolder = path.join(app.getPath('home'), 'AppData', 'Local', GAME_CONFIGS[gameId]?.saveFolder || 'Pokemon Illusion', 'Saves');
+    const saveFolder = path.join(getGameInstallBase(), GAME_CONFIGS[gameId]?.saveFolder || 'Pokemon Illusion', 'Saves');
     
     // Create folder if it doesn't exist
     try {
@@ -553,7 +562,7 @@ ipcMain.handle('game:uninstall', async (event, gameId) => {
   try {
     console.log('🗑️ Starting uninstall for game:', gameId);
     
-    const installDir = GAME_CONFIGS[gameId]?.installPath || path.join(app.getPath('home'), 'AppData', 'Local', 'Pokemon Illusion');
+    const installDir = GAME_CONFIGS[gameId]?.installPath || path.join(getGameInstallBase(), 'Pokemon Illusion');
     
     // Check if directory exists
     try {
@@ -622,7 +631,7 @@ ipcMain.handle('game:download', async (event, gameId) => {
     console.log('📋 Available assets:', release.assets.map(a => a.name).join(', '));
     
     // Check if we have an installed version for patch updates
-    const installDir = GAME_CONFIGS[gameId]?.installPath || path.join(app.getPath('home'), 'AppData', 'Local', 'Pokemon Illusion');
+    const installDir = GAME_CONFIGS[gameId]?.installPath || path.join(getGameInstallBase(), 'Pokemon Illusion');
     let installedVersion = null;
     
     try {
@@ -1065,7 +1074,7 @@ ipcMain.handle('updates:download', async (event, updateInfo) => {
     }
     
     // Get install path from somewhere (could be from settings)
-    const installPath = GAME_CONFIGS[gameId]?.installPath || path.join(app.getPath('home'), 'AppData', 'Local', 'Pokemon Illusion');
+    const installPath = GAME_CONFIGS[gameId]?.installPath || path.join(getGameInstallBase(), 'Pokemon Illusion');
     
     await autoUpdateService.downloadUpdate(updateInfo, installPath);
     return { success: true };
