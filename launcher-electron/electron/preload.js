@@ -54,7 +54,14 @@ contextBridge.exposeInMainWorld('electronAPI', {
   saveMysteryGifts: (redeemedCodes) => ipcRenderer.invoke('mysterygift:save', redeemedCodes),
   checkGiftClaimed: (code) => ipcRenderer.invoke('mysterygift:check-claimed', code),
   
-  // Auto-Updates
+  // Launcher Updates
+  checkLauncherUpdate: () => ipcRenderer.invoke('launcher:check-update'),
+  installLauncherUpdate: () => ipcRenderer.invoke('launcher:install-update'),
+  
+  // Game Updates
+  checkGameUpdate: (gameId) => ipcRenderer.invoke('game:check-update', gameId),
+  
+  // Legacy Auto-Updates (backwards compatibility)
   checkForUpdates: () => ipcRenderer.invoke('updates:check'),
   downloadUpdate: (updateInfo) => ipcRenderer.invoke('updates:download', updateInfo),
   rollbackUpdate: (installPath) => ipcRenderer.invoke('updates:rollback', installPath),

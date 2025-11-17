@@ -1015,31 +1015,111 @@ ipcMain.handle('mysterygift:check-claimed', async (event, code) => {
 // AUTO-UPDATE HANDLERS
 // ============================================================================
 
-// Launcher Auto-Update (Electron AutoUpdater)
+// Launcher Auto-Update - Check GitHub Releases manually
 ipcMain.handle('launcher:check-update', async () => {
   try {
-    if (!app.isPackaged) {
-      return { 
-        success: false, 
-        message: 'Auto-Update nur in Production verfügbar' 
-      };
+    console.log('🔍 Checking for launcher updates on GitHub...');
+    
+    // Get current version from package.json
+    const currentVersion = app.getVersion();
+    console.log('📌 Current launcher version:', currentVersion);
+    
+    // Fetch latest release from GitHub
+    const response = await fetch('https://api.github.com/repos/99Problemsx/mirrorbytes-launcher/releases/latest', {
+      headers: {
+        'User-Agent': 'Mirrorbytes-Launcher',
+        'Accept': 'application/vnd.github.v3+json'
+      }
+    });
+    
+    if (!response.ok) {
+      throw new Error(`GitHub API returned ${response.status}: ${response.statusText}`);
     }
     
-    console.log('🔍 Checking for launcher updates...');
-    await autoUpdater.checkForUpdates();
-    return { success: true, message: 'Update-Check gestartet' };
+    const release = await response.json();
+    const latestVersion = release.tag_name.replace(/^v/, ''); // Remove 'v' prefix
+    
+    console.log('✨ Latest release on GitHub:', latestVersion);
+    console.log('📦 Release name:', release.name);
+    console.log('🔗 Release URL:', release.html_url);
+    
+    // Compare versions
+    const isUpdateAvailable = compareVersions(currentVersion, latestVersion) < 0;
+    
+    if (isUpdateAvailable) {
+      console.log('🆕 Update available!');
+      
+      // Find the appropriate asset for current platform
+      const platform = process.platform;
+      let asset = null;
+      
+      if (platform === 'win32') {
+        asset = release.assets.find(a => 
+          a.name.includes('Setup.exe') || a.name.includes('.exe')
+        );
+      } else if (platform === 'darwin') {
+        asset = release.assets.find(a => 
+          a.name.includes('.dmg') || a.name.includes('.zip')
+        );
+      } else if (platform === 'linux') {
+        asset = release.assets.find(a => 
+          a.name.includes('AppImage') || a.name.includes('.deb')
+        );
+      }
+      
+      return {
+        success: true,
+        updateAvailable: true,
+        currentVersion,
+        latestVersion,
+        releaseUrl: release.html_url,
+        downloadUrl: asset?.browser_download_url || release.html_url,
+        releaseNotes: release.body,
+        releaseName: release.name,
+        publishedAt: release.published_at
+      };
+    } else {
+      console.log('✅ Launcher is up to date!');
+      return {
+        success: true,
+        updateAvailable: false,
+        currentVersion,
+        latestVersion,
+        message: 'Launcher is already up to date'
+      };
+    }
   } catch (error) {
-    console.error('Launcher update check failed:', error);
-    return { success: false, error: error.message };
+    console.error('❌ Launcher update check failed:', error);
+    return { 
+      success: false, 
+      updateAvailable: false,
+      error: error.message 
+    };
   }
 });
+
+// Helper function to compare semantic versions
+function compareVersions(v1, v2) {
+  const parts1 = v1.split('.').map(Number);
+  const parts2 = v2.split('.').map(Number);
+  
+  for (let i = 0; i < Math.max(parts1.length, parts2.length); i++) {
+    const part1 = parts1[i] || 0;
+    const part2 = parts2[i] || 0;
+    
+    if (part1 < part2) return -1;
+    if (part1 > part2) return 1;
+  }
+  
+  return 0;
+}
 
 ipcMain.handle('launcher:install-update', async () => {
   try {
     if (!app.isPackaged) {
       return { 
         success: false, 
-        message: 'Auto-Update nur in Production verfügbar' 
+        message: 'Auto-Update only available in production build' 
       };
     }
     
@@ -1052,7 +1132,101 @@ ipcMain.handle('launcher:install-update', async () => {
   }
 });
 
-// Game Auto-Update (existing system)
+// Game Auto-Update - Check for game updates on GitHub
+ipcMain.handle('game:check-update', async (event, gameId) => {
+  try {
+    const repo = getGameRepo(gameId);
+    const owner = getGameRepoOwner(gameId);
+    
+    console.log(`🎮 Checking for ${gameId} updates on GitHub...`);
+    console.log(`📦 Repository: ${owner}/${repo}`);
+    
+    // Get installed version
+    const installDir = GAME_CONFIGS[gameId]?.installPath || path.join(getGameInstallBase(), 'Pokemon Illusion');
+    let currentVersion = null;
+    
+    try {
+      const versionPath = path.join(installDir, 'VERSION.txt');
+      const versionContent = await fs.readFile(versionPath, 'utf-8');
+      currentVersion = versionContent.trim().replace(/^v/, '');
+      console.log('📌 Installed game version:', currentVersion);
+    } catch (err) {
+      console.log('⚠️ No VERSION.txt found - game not installed or no version info');
+      return {
+        success: false,
+        updateAvailable: false,
+        message: 'Game not installed or no version information found'
+      };
+    }
+    
+    // Fetch latest release from GitHub
+    const response = await fetch(`https://api.github.com/repos/${owner}/${repo}/releases/latest`, {
+      headers: {
+        'User-Agent': 'Mirrorbytes-Launcher',
+        'Accept': 'application/vnd.github.v3+json'
+      }
+    });
+    
+    if (!response.ok) {
+      throw new Error(`GitHub API returned ${response.status}: ${response.statusText}`);
+    }
+    
+    const release = await response.json();
+    const latestVersion = release.tag_name.replace(/^v/, '');
+    
+    console.log('✨ Latest game release on GitHub:', latestVersion);
+    console.log('📦 Release name:', release.name);
+    
+    // Compare versions
+    const isUpdateAvailable = compareVersions(currentVersion, latestVersion) < 0;
+    
+    if (isUpdateAvailable) {
+      console.log('🆕 Game update available!');
+      
+      // Check for patch update
+      const patchAssetName = `Patch-from-${currentVersion}.zip`;
+      const patchAsset = release.assets.find(a => a.name.includes(patchAssetName));
+      
+      // Find full game asset
+      const fullAsset = release.assets.find(a => 
+        (a.name.toLowerCase().endsWith('.zip') || a.name.toLowerCase().endsWith('.exe')) &&
+        !a.name.includes('Patch-from')
+      );
+      
+      return {
+        success: true,
+        updateAvailable: true,
+        currentVersion,
+        latestVersion,
+        releaseUrl: release.html_url,
+        releaseNotes: release.body,
+        releaseName: release.name,
+        publishedAt: release.published_at,
+        patchAvailable: !!patchAsset,
+        patchSize: patchAsset ? (patchAsset.size / 1024 / 1024).toFixed(2) : null,
+        fullSize: fullAsset ? (fullAsset.size / 1024 / 1024).toFixed(2) : null
+      };
+    } else {
+      console.log('✅ Game is up to date!');
+      return {
+        success: true,
+        updateAvailable: false,
+        currentVersion,
+        latestVersion,
+        message: 'Game is already up to date'
+      };
+    }
+  } catch (error) {
+    console.error('❌ Game update check failed:', error);
+    return { 
+      success: false, 
+      updateAvailable: false,
+      error: error.message 
+    };
+  }
+});
+
+// Legacy game update handlers (keeping for backwards compatibility)
 ipcMain.handle('updates:check', async () => {
   try {
     if (!autoUpdateService) {
