@@ -100,16 +100,22 @@ const UpdatesPage = ({ selectedGame }) => {
     try {
       if (!window.electron?.checkLauncherUpdate) {
         console.error('Launcher update API not available');
+        toast.error('Update-API nicht verfügbar');
         return;
       }
       
       const result = await window.electron.checkLauncherUpdate();
+      console.log('Launcher update check result:', result);
+      
       if (result?.updateAvailable) {
         setLauncherUpdateInfo(result);
         toast.info(`🚀 Launcher Update verfügbar: v${result.latestVersion}`);
+      } else {
+        toast.success('✅ Du hast bereits die neueste Launcher-Version!');
       }
     } catch (error) {
       console.error('Failed to check launcher updates:', error);
+      toast.error('❌ Update-Check fehlgeschlagen');
     } finally {
       setIsCheckingLauncher(false);
     }

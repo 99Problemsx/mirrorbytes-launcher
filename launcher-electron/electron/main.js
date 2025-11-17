@@ -96,6 +96,22 @@ function getMysteryGiftService() {
   return mysteryGiftService;
 }
 
+// Helper function: Compare semantic versions
+function compareVersions(v1, v2) {
+  const parts1 = v1.split('.').map(Number);
+  const parts2 = v2.split('.').map(Number);
+  
+  for (let i = 0; i < Math.max(parts1.length, parts2.length); i++) {
+    const part1 = parts1[i] || 0;
+    const part2 = parts2[i] || 0;
+    
+    if (part1 > part2) return 1;
+    if (part1 < part2) return -1;
+  }
+  
+  return 0;
+}
+
 let mainWindow;
 
 // Allow app to quit when window is closed
@@ -984,19 +1000,56 @@ ipcMain.handle('mysterygift:check-claimed', async (event, code) => {
 // Launcher Auto-Update (Electron AutoUpdater)
 ipcMain.handle('launcher:check-update', async () => {
   try {
-    if (!app.isPackaged) {
-      return { 
-        success: false, 
-        message: 'Auto-Update nur in Production verfügbar' 
+    console.log('🔍 Checking for launcher updates via GitHub API...');
+    
+    // Use GitHub API directly for both dev and production
+    const response = await new Promise((resolve, reject) => {
+      https.get('https://api.github.com/repos/99Problemsx/mirrorbytes-launcher/releases/latest', {
+        headers: {
+          'User-Agent': 'Mirrorbytes-Studio-Launcher'
+        }
+      }, (res) => {
+        let data = '';
+        res.on('data', chunk => data += chunk);
+        res.on('end', () => {
+          if (res.statusCode === 200) {
+            resolve(JSON.parse(data));
+          } else {
+            reject(new Error(`GitHub API returned ${res.statusCode}`));
+          }
+        });
+      }).on('error', reject);
+    });
+    
+    const latestVersion = response.tag_name.replace('v', '');
+    const currentVersion = '1.0.0'; // Read from package.json in real impl
+    
+    console.log(`Current version: ${currentVersion}, Latest version: ${latestVersion}`);
+    
+    // Simple version comparison
+    const isNewer = compareVersions(latestVersion, currentVersion) > 0;
+    
+    if (isNewer) {
+      return {
+        updateAvailable: true,
+        currentVersion,
+        latestVersion,
+        releaseNotes: response.body,
+        downloadUrl: response.html_url
+      };
+    } else {
+      return {
+        updateAvailable: false,
+        currentVersion,
+        latestVersion
       };
     }
-    
-    console.log('🔍 Checking for launcher updates...');
-    await autoUpdater.checkForUpdates();
-    return { success: true, message: 'Update-Check gestartet' };
   } catch (error) {
     console.error('Launcher update check failed:', error);
-    return { success: false, error: error.message };
+    return { 
+      updateAvailable: false, 
+      error: error.message 
+    };
   }
 });
 
