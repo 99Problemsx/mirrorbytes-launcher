@@ -53,9 +53,17 @@ const UpdatesPage = ({ selectedGame }) => {
     try {
       const response = await fetch(`https://api.github.com/repos/99Problemsx/${selectedGame.repo}/releases`);
       const data = await response.json();
-      setReleases(data.slice(0, 10)); // Top 10 releases
+      
+      // Check if data is an array (successful response) or object (error response)
+      if (Array.isArray(data)) {
+        setReleases(data.slice(0, 10)); // Top 10 releases
+      } else {
+        console.log('No releases available or repository is private');
+        setReleases([]);
+      }
     } catch (error) {
       console.error('Failed to load releases:', error);
+      setReleases([]);
     }
   };
 

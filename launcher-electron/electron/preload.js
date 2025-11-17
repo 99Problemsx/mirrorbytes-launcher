@@ -39,6 +39,11 @@ contextBridge.exposeInMainWorld('electron', {
   
   // Uninstall game
   uninstallGame: (gameId) => ipcRenderer.invoke('game:uninstall', gameId),
+  
+  // Launcher updates
+  checkLauncherUpdate: () => ipcRenderer.invoke('launcher:check-update'),
+  checkGameUpdate: (gameId) => ipcRenderer.invoke('game:check-update', gameId),
+  installLauncherUpdate: () => ipcRenderer.invoke('launcher:install-update'),
 });
 
 // Expose electronAPI for new features

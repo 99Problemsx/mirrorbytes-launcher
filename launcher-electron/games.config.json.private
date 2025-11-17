@@ -1,0 +1,46 @@
+{
+  "games": [
+    {
+      "id": "illusion",
+      "name": "Pokémon Illusion",
+      "descriptionKey": "illusionDesc",
+      "version": "v1.0.0",
+      "coverImage": "/assets/games/illusion-cover.jpg",
+      "repo": {
+        "owner": "99Problemsx",
+        "name": "Illusion"
+      },
+      "installPath": "Pokemon Illusion",
+      "exeName": "Game.exe",
+      "saveFolder": "Pokemon Illusion",
+      "discord": {
+        "clientId": "1428590219430461602",
+        "appName": "Illusion"
+      }
+    },
+    {
+      "id": "zorua",
+      "name": "Zorua: The Divine Deception",
+      "descriptionKey": "zoruaDesc",
+      "version": "v1.0.0",
+      "coverImage": "/assets/games/zorua-cover.jpg",
+      "repo": {
+        "owner": "99Problemsx",
+        "name": "Zorua-the-divine-deception"
+      },
+      "installPath": "Zorua - The Divine Deception",
+      "exeName": "Game.exe",
+      "saveFolder": "Zorua - The Divine Deception",
+      "discord": {
+        "clientId": "YOUR_ZORUA_DISCORD_APP_ID",
+        "appName": "Zorua - The Divine Deception"
+      }
+    }
+  ],
+  "launcher": {
+    "studioName": "Mirrorbytes Studio",
+    "discord": {
+      "clientId": "1428590219430461602"
+    }
+  }
+}
