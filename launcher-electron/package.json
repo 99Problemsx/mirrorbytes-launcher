@@ -102,7 +102,6 @@
         "dmg",
         "zip"
       ],
-      "icon": "build/icon.png",
       "category": "public.app-category.games",
       "darkModeSupport": true,
       "artifactName": "${productName}-${version}-${os}.${ext}"
@@ -112,7 +111,6 @@
         "AppImage",
         "deb"
       ],
-      "icon": "build/icon.png",
       "category": "Game"
     },
     "asarUnpack": [
