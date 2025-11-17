@@ -8,10 +8,10 @@
     "dev:vite": "vite",
     "dev:electron": "wait-on http://localhost:5173 && cross-env ELECTRON_ENABLE_LOGGING=1 electron .",
     "build": "vite build",
-    "build:win": "npm run build && electron-builder --win",
-    "build:mac": "npm run build && electron-builder --mac",
-    "build:linux": "npm run build && electron-builder --linux",
-    "build:all": "npm run build && electron-builder --win --mac --linux"
+    "build:win": "npm run build && electron-builder --win --publish never",
+    "build:mac": "npm run build && electron-builder --mac --publish never",
+    "build:linux": "npm run build && electron-builder --linux --publish never",
+    "build:all": "npm run build && electron-builder --win --mac --linux --publish never"
   },
   "keywords": [
     "pokemon",
@@ -51,6 +51,7 @@
   "build": {
     "appId": "com.mirrorbytes.studio",
     "productName": "Mirrorbytes Studio",
+    "publish": null,
     "directories": {
       "output": "dist-electron",
       "buildResources": "build"
@@ -113,12 +114,6 @@
       ],
       "icon": "build/icon.png",
       "category": "Game"
-    },
-    "publish": {
-      "provider": "github",
-      "owner": "99Problemsx",
-      "repo": "mirrorbytes-launcher",
-      "releaseType": "release"
     },
     "asarUnpack": [
       "node_modules/discord-rpc/**/*",
