@@ -1,6 +1,6 @@
 {
   "name": "mirrorbytes-studio",
-  "version": "1.0.0",
+  "version": "1.0.2",
   "description": "Mirrorbytes Studio - Modern Multi-Game Launcher for Pokémon Fangames",
   "main": "electron/main.js",
   "scripts": {
