@@ -16,7 +16,7 @@ export class LauncherUpdateService {
       }
 
       const release = await response.json();
-      const latestVersion = release.tag_name.replace('launcher-v', '');
+      const latestVersion = release.tag_name.replace('v', '');
 
       if (this.isNewerVersion(latestVersion, this.currentVersion)) {
         return {
