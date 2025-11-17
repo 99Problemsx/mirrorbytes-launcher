@@ -16,7 +16,7 @@ jobs:
     steps:
     - name: Auto-assign issue
       if: github.event_name == 'issues'
-      uses: actions/github-script@v7
+      uses: actions/github-script@v8
       with:
         script: |
           // Auto-assign labels based on title/body
@@ -44,7 +44,7 @@ jobs:
           
     - name: Auto-assign PR
       if: github.event_name == 'pull_request'
-      uses: actions/github-script@v7
+      uses: actions/github-script@v8
       with:
         script: |
           // PR labels will be added by labeler action
