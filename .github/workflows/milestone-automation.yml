@@ -15,7 +15,7 @@ jobs:
       
     steps:
     - name: Move to next milestone
-      uses: actions/github-script@v7
+      uses: actions/github-script@v8
       with:
         script: |
           const { data: milestones } = await github.rest.issues.listMilestones({
