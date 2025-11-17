@@ -11,13 +11,16 @@ const UpdatesPage = ({ selectedGame }) => {
   const [downloadProgress, setDownloadProgress] = useState(0);
   const [autoUpdate, setAutoUpdate] = useState(true);
   const [currentVersion, setCurrentVersion] = useState('0.2.1');
-  const [activeTab, setActiveTab] = useState('updates'); // 'updates' or 'news'
+  const [activeTab, setActiveTab] = useState('game-updates'); // 'game-updates', 'launcher-updates', or 'news'
   const [releases, setReleases] = useState([]);
+  const [launcherUpdateInfo, setLauncherUpdateInfo] = useState(null);
+  const [isCheckingLauncher, setIsCheckingLauncher] = useState(false);
 
   useEffect(() => {
     loadSettings();
     checkForUpdates();
     loadReleases();
+    checkForLauncherUpdates();
 
     // Listen for update events
     window.electronAPI?.onUpdateAvailable?.((info) => {
@@ -84,6 +87,26 @@ const UpdatesPage = ({ selectedGame }) => {
     }
   };
 
+  const checkForLauncherUpdates = async () => {
+    setIsCheckingLauncher(true);
+    try {
+      if (!window.electron?.checkLauncherUpdate) {
+        console.error('Launcher update API not available');
+        return;
+      }
+      
+      const result = await window.electron.checkLauncherUpdate();
+      if (result?.updateAvailable) {
+        setLauncherUpdateInfo(result);
+        toast.info(`🚀 Launcher Update verfügbar: v${result.latestVersion}`);
+      }
+    } catch (error) {
+      console.error('Failed to check launcher updates:', error);
+    } finally {
+      setIsCheckingLauncher(false);
+    }
+  };
+
   const startDownload = async () => {
     if (!updateInfo) return;
     
@@ -139,27 +162,37 @@ const UpdatesPage = ({ selectedGame }) => {
             </p>
           </div>
           <div className="text-6xl">
-            {activeTab === 'updates' ? '🔄' : '📰'}
+            {activeTab === 'game-updates' ? '🎮' : activeTab === 'launcher-updates' ? '🚀' : '📰'}
           </div>
         </div>
 
         {/* Tab Navigation */}
         <div className="flex space-x-2 bg-dark-700/50 rounded-lg p-1">
           <button
-            onClick={() => setActiveTab('updates')}
+            onClick={() => setActiveTab('game-updates')}
             className={`flex-1 px-4 py-2 rounded-lg font-medium transition-all ${
-              activeTab === 'updates'
+              activeTab === 'game-updates'
                 ? 'bg-gradient-to-r from-blue-500 to-purple-600 text-white shadow-lg'
                 : 'text-gray-400 hover:text-white'
             }`}
           >
-            🔄 {t('updatesTitle')}
+            🎮 Game Updates
+          </button>
+          <button
+            onClick={() => setActiveTab('launcher-updates')}
+            className={`flex-1 px-4 py-2 rounded-lg font-medium transition-all ${
+              activeTab === 'launcher-updates'
+                ? 'bg-gradient-to-r from-green-500 to-teal-600 text-white shadow-lg'
+                : 'text-gray-400 hover:text-white'
+            }`}
+          >
+            🚀 Launcher Updates
           </button>
           <button
             onClick={() => setActiveTab('news')}
             className={`flex-1 px-4 py-2 rounded-lg font-medium transition-all ${
               activeTab === 'news'
-                ? 'bg-gradient-to-r from-blue-500 to-purple-600 text-white shadow-lg'
+                ? 'bg-gradient-to-r from-orange-500 to-red-600 text-white shadow-lg'
                 : 'text-gray-400 hover:text-white'
             }`}
           >
@@ -169,7 +202,7 @@ const UpdatesPage = ({ selectedGame }) => {
       </div>
 
       {/* Content based on active tab */}
-      {activeTab === 'updates' ? (
+      {activeTab === 'game-updates' ? (
         <>
       {/* Update Check */}
       <div className="glass-effect rounded-xl p-6">
@@ -348,6 +381,103 @@ const UpdatesPage = ({ selectedGame }) => {
           </div>
         </div>
       </div>
+        </>
+      ) : activeTab === 'launcher-updates' ? (
+        /* Launcher Updates Tab */
+        <>
+          {/* Launcher Update Check */}
+          <div className="glass-effect rounded-xl p-6">
+            <div className="flex items-center justify-between mb-4">
+              <div>
+                <h2 className="text-xl font-bold mb-1">🚀 Launcher Updates</h2>
+                <p className="text-sm text-gray-400">
+                  Aktuelle Launcher Version: <span className="text-green-400 font-mono">v1.0.0</span>
+                </p>
+              </div>
+              <button
+                onClick={checkForLauncherUpdates}
+                disabled={isCheckingLauncher}
+                className="px-6 py-3 bg-gradient-to-r from-green-500 to-teal-600 hover:shadow-lg hover:shadow-green-500/50 rounded-lg font-medium transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {isCheckingLauncher ? (
+                  <span className="flex items-center space-x-2">
+                    <svg className="animate-spin h-5 w-5" viewBox="0 0 24 24">
+                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
+                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+                    </svg>
+                    <span>Checking...</span>
+                  </span>
+                ) : (
+                  'Nach Updates suchen'
+                )}
+              </button>
+            </div>
+
+            {/* Update Info */}
+            {launcherUpdateInfo?.updateAvailable ? (
+              <div className="mt-4 p-4 bg-green-500/10 border border-green-500/30 rounded-lg">
+                <div className="flex items-start space-x-3 mb-4">
+                  <span className="text-2xl">✨</span>
+                  <div className="flex-1">
+                    <p className="font-medium text-green-400 mb-1">
+                      Neues Launcher-Update verfügbar!
+                    </p>
+                    <p className="text-sm text-gray-300 mb-2">
+                      Version {launcherUpdateInfo.latestVersion} ist jetzt verfügbar.
+                      Aktuelle Version: {launcherUpdateInfo.currentVersion}
+                    </p>
+                    {launcherUpdateInfo.releaseNotes && (
+                      <div className="mt-3 p-3 bg-dark-700/50 rounded-lg">
+                        <p className="text-xs text-gray-400 mb-2">📝 Release Notes:</p>
+                        <div className="text-sm text-gray-300 whitespace-pre-line">
+                          {launcherUpdateInfo.releaseNotes.split('\\n').slice(0, 5).join('\\n')}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                </div>
+                <div className="flex space-x-3">
+                  <button
+                    onClick={() => window.open(`https://github.com/99Problemsx/mirrorbytes-launcher/releases/tag/v${launcherUpdateInfo.latestVersion}`, '_blank')}
+                    className="flex-1 px-4 py-2 bg-gradient-to-r from-green-500 to-teal-600 hover:shadow-lg rounded-lg font-medium transition-all"
+                  >
+                    📥 Download Update
+                  </button>
+                  <button
+                    onClick={() => window.open('https://github.com/99Problemsx/mirrorbytes-launcher/releases', '_blank')}
+                    className="px-4 py-2 bg-dark-700/50 hover:bg-dark-700 rounded-lg font-medium transition-all"
+                  >
+                    Alle Releases ansehen
+                  </button>
+                </div>
+              </div>
+            ) : launcherUpdateInfo && !launcherUpdateInfo.updateAvailable ? (
+              <div className="mt-4 p-4 bg-blue-500/10 border border-blue-500/30 rounded-lg">
+                <div className="flex items-center space-x-3">
+                  <span className="text-2xl">✅</span>
+                  <p className="text-blue-400">
+                    Du verwendest bereits die neueste Launcher-Version!
+                  </p>
+                </div>
+              </div>
+            ) : null}
+          </div>
+
+          {/* Info */}
+          <div className="glass-effect rounded-xl p-6 bg-green-500/10 border border-green-500/30">
+            <div className="flex items-start space-x-3">
+              <span className="text-2xl">ℹ️</span>
+              <div>
+                <p className="font-medium text-green-400 mb-1">Über Launcher Updates</p>
+                <ul className="text-sm text-gray-300 space-y-1">
+                  <li>• Launcher-Updates werden von GitHub heruntergeladen</li>
+                  <li>• Neue Versionen bringen Bugfixes und neue Features</li>
+                  <li>• Deine Spiele und Einstellungen bleiben erhalten</li>
+                  <li>• Updates sind immer optional - du entscheidest wann</li>
+                </ul>
+              </div>
+            </div>
+          </div>
         </>
       ) : (
         /* Release Notes Tab */
