@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { FiPlay, FiDownload, FiSettings, FiClock, FiCheck, FiRefreshCw, FiFolder } from 'react-icons/fi';
+import { FiPlay, FiDownload, FiSettings, FiClock, FiCheck, FiRefreshCw, FiFolder, FiPackage } from 'react-icons/fi';
 import { useToast } from './Toast';
 import { useTranslation } from '../i18n/translations';
 import Settings from './Settings';
@@ -23,6 +23,10 @@ const GameCard = ({ game }) => {
   const [isOnline, setIsOnline] = useState(navigator.onLine);
   const [retryCount, setRetryCount] = useState(0);
   const [showConfetti, setShowConfetti] = useState(false);
+  const [updateAvailable, setUpdateAvailable] = useState(false);
+  const [latestVersion, setLatestVersion] = useState(null);
+  const [isUpdating, setIsUpdating] = useState(false);
+  const [updateProgress, setUpdateProgress] = useState({ step: '', message: '', current: 0, total: 0 });
   
   const { toasts, addToast, removeToast, ToastContainer } = useToast();
 
@@ -160,6 +164,89 @@ const GameCard = ({ game }) => {
       setCheckingInstall(false);
     }
   };
+
+  // Check for game updates
+  const checkForUpdates = async () => {
+    if (!isInstalled || !window.electron?.checkGameUpdate) {
+      return;
+    }
+
+    try {
+      const result = await window.electron.checkGameUpdate(game.id);
+      
+      if (result.success && result.hasUpdate) {
+        setUpdateAvailable(true);
+        setLatestVersion(result.latestVersion);
+        if (!result.isNewInstall) {
+          addToast(`Update verfügbar: ${result.latestVersion}`, 'info', 5000);
+        }
+      } else {
+        setUpdateAvailable(false);
+      }
+    } catch (error) {
+      console.error('Update check failed:', error);
+    }
+  };
+
+  // Apply delta update
+  const handleUpdate = async () => {
+    if (!latestVersion || !window.electron?.deltaUpdate) {
+      return;
+    }
+
+    setIsUpdating(true);
+    setUpdateProgress({ step: 'starting', message: 'Update wird vorbereitet...', current: 0, total: 0 });
+    addToast('Delta-Update wird gestartet...', 'info', 3000);
+
+    try {
+      const result = await window.electron.deltaUpdate(
+        game.id,
+        latestVersion,
+        (progress) => {
+          setUpdateProgress(progress);
+          
+          if (progress.step === 'summary') {
+            const { added, modified, removed } = progress.changes;
+            addToast(
+              `${added} neue, ${modified} geänderte, ${removed} entfernte Dateien`,
+              'info',
+              4000
+            );
+          }
+        }
+      );
+
+      if (result.success) {
+        addToast('✅ Update erfolgreich installiert!', 'success', 5000);
+        setUpdateAvailable(false);
+        setInstalledVersion(latestVersion);
+        setShowConfetti(true);
+        setTimeout(() => setShowConfetti(false), 3000);
+        
+        // Re-check installation
+        setTimeout(() => checkGameInstalled(), 1000);
+      } else {
+        if (result.needsFullInstall) {
+          addToast('Vollständige Neuinstallation erforderlich', 'warning', 0);
+        } else {
+          addToast(`Update fehlgeschlagen: ${result.error}`, 'error', 0);
+        }
+      }
+    } catch (error) {
+      console.error('Update failed:', error);
+      addToast(`Update-Fehler: ${error.message}`, 'error', 0);
+    } finally {
+      setIsUpdating(false);
+      setUpdateProgress({ step: '', message: '', current: 0, total: 0 });
+    }
+  };
+
+  // Check for updates when game becomes installed
+  useEffect(() => {
+    if (isInstalled && !checkingInstall) {
+      checkForUpdates();
+    }
+  }, [isInstalled, checkingInstall]);
 
   const handlePlay = async (launchFlags = []) => {
     setIsLaunching(true);
@@ -412,12 +499,41 @@ const GameCard = ({ game }) => {
               <span>{game.playTime}</span>
             </div>
             <div>
-              <span className="px-3 py-1 bg-green-500/20 text-green-400 rounded-full text-xs font-semibold glow-effect">
+              <span className={`px-3 py-1 rounded-full text-xs font-semibold glow-effect ${
+                updateAvailable 
+                  ? 'bg-blue-500/20 text-blue-400 animate-pulse' 
+                  : 'bg-green-500/20 text-green-400'
+              }`}>
                 {installedVersion}
+                {updateAvailable && ` → ${latestVersion}`}
               </span>
             </div>
           </motion.div>
         </div>
+
+        {/* Update Progress Info */}
+        {isUpdating && updateProgress.step && (
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="mt-4 p-4 bg-blue-500/10 rounded-xl border border-blue-500/30"
+          >
+            <div className="flex items-center space-x-3 mb-2">
+              <FiPackage className="text-blue-400" />
+              <span className="text-sm text-gray-300">{updateProgress.message}</span>
+            </div>
+            {updateProgress.total > 0 && (
+              <div className="text-xs text-gray-400">
+                Datei {updateProgress.current} von {updateProgress.total}
+                {updateProgress.fileProgress && (
+                  <span className="ml-2">
+                    ({updateProgress.fileProgress.percentage}%)
+                  </span>
+                )}
+              </div>
+            )}
+          </motion.div>
+        )}
 
         {/* Action Buttons */}
         <motion.div
@@ -445,9 +561,9 @@ const GameCard = ({ game }) => {
                 whileHover={{ scale: 1.05, boxShadow: '0 0 30px rgba(239, 68, 68, 0.6)' }}
                 whileTap={{ scale: 0.95 }}
                 onClick={() => handlePlay()}
-                disabled={isLaunching}
+                disabled={isLaunching || isUpdating}
                 className={`flex-1 px-8 py-4 rounded-xl font-bold text-lg flex items-center justify-center space-x-3 transition-all ripple ${
-                  isLaunching
+                  isLaunching || isUpdating
                     ? 'bg-gray-600 cursor-not-allowed'
                     : 'bg-gradient-to-r from-red-500 to-purple-600 hover:shadow-2xl hover:shadow-red-500/50 shine-effect glow-effect'
                 }`}
@@ -455,6 +571,33 @@ const GameCard = ({ game }) => {
                 <FiPlay size={24} />
                 <span>{isLaunching ? t('starting') : t('playGame')}</span>
               </motion.button>
+              
+              {/* Update Button (if update available) */}
+              {updateAvailable && (
+                <motion.button
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                  onClick={handleUpdate}
+                  disabled={isUpdating}
+                  className={`p-4 rounded-xl transition-all ${
+                    isUpdating
+                      ? 'bg-gray-600 cursor-not-allowed'
+                      : 'bg-gradient-to-r from-blue-500 to-cyan-600 hover:shadow-lg hover:shadow-blue-500/50'
+                  }`}
+                  title={`Update zu ${latestVersion}`}
+                >
+                  {isUpdating ? (
+                    <motion.div
+                      animate={{ rotate: 360 }}
+                      transition={{ duration: 1, repeat: Infinity, ease: 'linear' }}
+                    >
+                      <FiPackage size={24} />
+                    </motion.div>
+                  ) : (
+                    <FiPackage size={24} />
+                  )}
+                </motion.button>
+              )}
               
               {/* Uninstall Button */}
               <motion.button

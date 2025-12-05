@@ -888,6 +888,95 @@ function handleDownload(response, downloadPath, fileSize, installDir, isZipFile,
 }
 
 // ============================================================================
+// DELTA PATCHER HANDLERS
+// ============================================================================
+
+const deltaPatcher = require('../src/services/deltaPatcherService');
+
+// Check for game updates
+ipcMain.handle('game:check-update', async (event, gameId) => {
+  try {
+    const config = GAME_CONFIGS[gameId];
+    if (!config) {
+      return { success: false, error: 'Invalid game ID' };
+    }
+
+    const repo = getGameRepo(gameId);
+    const updateCheck = await deltaPatcher.checkForUpdates(
+      '99Problemsx',
+      repo,
+      config.installPath,
+      null // Will auto-detect from VERSION.txt
+    );
+
+    return { success: true, ...updateCheck };
+  } catch (error) {
+    console.error('Update check failed:', error);
+    return { success: false, error: error.message };
+  }
+});
+
+// Apply delta patch (smart update)
+ipcMain.handle('game:delta-update', async (event, gameId, targetVersion) => {
+  try {
+    const config = GAME_CONFIGS[gameId];
+    if (!config) {
+      return { success: false, error: 'Invalid game ID' };
+    }
+
+    const repo = getGameRepo(gameId);
+    const currentVersion = deltaPatcher.getInstalledVersion(config.installPath);
+
+    if (!currentVersion) {
+      return {
+        success: false,
+        error: 'No installed version found. Please do a full install first.',
+        needsFullInstall: true
+      };
+    }
+
+    console.log(`🔄 Delta patching ${gameId} from ${currentVersion} to ${targetVersion}`);
+
+    const result = await deltaPatcher.applyDeltaPatch({
+      owner: '99Problemsx',
+      repo: repo,
+      baseVersion: currentVersion,
+      targetVersion: targetVersion,
+      installPath: config.installPath,
+      onProgress: (progress) => {
+        // Send progress updates to renderer
+        if (mainWindow) {
+          mainWindow.webContents.send('delta-patch:progress', {
+            gameId,
+            ...progress
+          });
+        }
+      }
+    });
+
+    return result;
+  } catch (error) {
+    console.error('Delta patch failed:', error);
+    return { success: false, error: error.message };
+  }
+});
+
+// Get current installed version
+ipcMain.handle('game:get-version', async (event, gameId) => {
+  try {
+    const config = GAME_CONFIGS[gameId];
+    if (!config) {
+      return { success: false, error: 'Invalid game ID' };
+    }
+
+    const version = deltaPatcher.getInstalledVersion(config.installPath);
+    return { success: true, version };
+  } catch (error) {
+    return { success: false, error: error.message };
+  }
+});
+
+// ============================================================================
 // DISCORD RICH PRESENCE HANDLERS
 // ============================================================================
 

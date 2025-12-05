@@ -26,11 +26,11 @@
       "coverImage": "/assets/games/zorua-cover.jpg",
       "repo": {
         "owner": "99Problemsx",
-        "name": "Zorua-the-divine-deception"
+        "name": "ZTDD"
       },
-      "installPath": "Zorua - The Divine Deception",
+      "installPath": "Zorua The Divine Deception",
       "exeName": "Game.exe",
-      "saveFolder": "Zorua - The Divine Deception",
+      "saveFolder": "Zorua The Divine Deception",
       "discord": {
         "clientId": "YOUR_ZORUA_DISCORD_APP_ID",
         "appName": "Zorua - The Divine Deception"

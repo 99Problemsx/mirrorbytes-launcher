@@ -44,6 +44,21 @@ contextBridge.exposeInMainWorld('electron', {
   checkLauncherUpdate: () => ipcRenderer.invoke('launcher:check-update'),
   checkGameUpdate: (gameId) => ipcRenderer.invoke('game:check-update', gameId),
   installLauncherUpdate: () => ipcRenderer.invoke('launcher:install-update'),
+  
+  // Delta patching
+  getGameVersion: (gameId) => ipcRenderer.invoke('game:get-version', gameId),
+  deltaUpdate: (gameId, targetVersion, onProgress) => {
+    // Listen for delta patch progress updates
+    if (onProgress) {
+      ipcRenderer.on('delta-patch:progress', (event, progress) => {
+        if (progress.gameId === gameId) {
+          onProgress(progress);
+        }
+      });
+    }
+    
+    return ipcRenderer.invoke('game:delta-update', gameId, targetVersion);
+  },
 });
 
 // Expose electronAPI for new features
