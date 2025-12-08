@@ -37,7 +37,7 @@
     "react-dom": "^19.2.0",
     "react-icons": "^5.5.0",
     "tailwindcss": "^4.1.16",
-    "vite": "^7.2.2",
+    "vite": "^7.2.7",
     "wait-on": "^9.0.1"
   },
   "dependencies": {
